@@ -10,9 +10,9 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title'                 => 'Notifications',
-    'description'           => 'The extension lets you send notifications to users',
+    'description'           => 'A Laravel-style notification system for TYPO3. Any PHP code — a controller, an Extbase plugin, a domain service, a Scheduler task, a middleware — can send a notification to any object that uses the Notifiable trait. Notifications can be sent via email, SMS, Slack, Telegram, or any other channel.',
     'category'              => 'plugin',
-    'version'               => '1.1.0',
+    'version'               => '1.2.0',
     'state'                 => 'stable',
     'author'                => 'Agence Lex',
     'author_email'          => 'contact@agencelex.com',

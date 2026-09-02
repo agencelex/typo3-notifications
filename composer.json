@@ -1,17 +1,16 @@
 {
-    "name": "lex/notifications",
-    "description": "The extension lets you send notifications to users",
+    "name": "agencelex/notifications",
+    "description": "A Laravel-style notification system for TYPO3. Any PHP code — a controller, an Extbase plugin, a domain service, a Scheduler task, a middleware — can send a notification to any object that uses the Notifiable trait.",
     "type": "typo3-cms-extension",
     "license": "GPL-2.0-or-later",
     "keywords": [
         "TYPO3",
         "notifications"
     ],
-    "homepage": "https://www.agencelex.com/",
+    "homepage": "https://extensions.typo3.org/extension/lex_notifications",
     "authors": [
         {
             "name": "Agence Lex",
-            "email": "contact@agencelex.com",
             "role": "Agency",
             "homepage": "https://www.agencelex.com/"
         }
