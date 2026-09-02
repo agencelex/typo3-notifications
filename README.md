@@ -23,20 +23,21 @@ implementation for dispatching batch notifications from PHP code.
 ## Requirements
 
 | Dependency | Version |
-|---|---|
-| TYPO3 CMS | ^13.4 |
-| PHP | ^8.2 |
-| nesbot/carbon | ^3.2 |
-| illuminate/collections | ^10.48 |
+|---|---------|
+| TYPO3 CMS | ^13.4   |
+| PHP | ^8.2    |
+| nesbot/carbon | ^3.2    |
+| illuminate/collections | ^12.69  |
 
 ---
 
 ## Installation
 
 ```bash
-composer require lex/notifications
-vendor/bin/typo3 extension:activate lex_notifications
-vendor/bin/typo3 database:updateschema
+composer require agencelex/notifications
+vendor/bin/typo3 extension:setup
+vendor/bin/typo3 upgrade:run
+vendor/bin/typo3 cache:flush
 ```
 
 ---
@@ -52,9 +53,12 @@ use Lex\Notifications\Domain\Model\Ability\HasRouteNotificationForMail;
 class FrontendUser extends AbstractEntity
 {
     use Notifiable;
-    use HasRouteNotificationForMail; // needed for email delivery
+    use HasRouteNotificationForMail; // Needed for email delivery, remove if not needed
 
-    protected string $email = '';
+    // When using HasRouteNotificationForMail
+    public function getEmail(): string { return 'john.doe@example.com'; } // Retrieve from local attributes, database or other source
+    public function getFirstName(): ?string { return null; }
+    public function getLastName(): ?string { return null; }
 }
 ```
 
@@ -70,11 +74,13 @@ final class OrderConfirmed extends Notification
 {
     public function __construct(private readonly Order $order) {}
 
+    // Optional - If you want to specify a notification level different from INFO
     public function getLevel(): int
     {
         return NotificationLevel::LEVEL_INFO;
     }
 
+    // Specify delivery channels
     public function via(object $notifiable): array
     {
         return [NotificationChannel::CHANNEL_MAIL, NotificationChannel::CHANNEL_DATABASE];
@@ -108,7 +114,14 @@ $user->notifyNow(new OrderConfirmed($order));      // immediate
 
 // From any service via the dispatcher
 $this->notificationDispatcher->send($user, new OrderConfirmed($order));
+$this->notificationDispatcher->sendNow($user, new OrderConfirmed($order));
+
+// Multiple recipients
 $this->notificationDispatcher->send([$userA, $userB], new Announcement());
+$this->notificationDispatcher->sendNow([$userA, $userB], new Announcement());
+
+// To a specific channel
+$this->notificationDispatcher->channel(NotificationChannel::CHANNEL_DATABASE)->send($user, new InvoicePaid($invoice));
 ```
 
 ---
@@ -119,27 +132,33 @@ Any object that uses the `Notifiable` trait — regardless of class hierarchy:
 
 ```php
 // Frontend user → frontend user
-$recipient->notify(new ContentSharedWithYou($page, $sender));
+$sender = $this->notifiableFrontendUserRepository->findByUid($senderUid);
+$recipients = $this->notifiableFrontendUserRepository->findByUids($recipientUids);
+$this->notificationDispatcher->send($recipients, new ContentSharedWithYou($page, $sender));
 
 // Extension → backend user (plain class, no DB record needed)
-$admin = new class('admin@example.com') {
+$admin = new class($backendEmail, $backendRealName) {
     use Notifiable;
     use HasRouteNotificationForMail;
-    public function __construct(protected readonly string $email) {}
+
+    protected string $firstName;
+    protected string $lastName;
+
+    public function __construct(protected readonly string $email, string $fullName) {
+        $parts = explode(' ',trim($fullName), 2);
+        $this->firstName = $parts[0] ?? '';
+        $this->lastName = $parts[1] ?? '';
+    }
     public function getEmail(): string { return $this->email; }
-    public function getFirstName(): ?string { return null; }
-    public function getLastName(): ?string { return null; }
+    public function getFirstName(): ?string { return $this->firstName ; }
+    public function getLastName(): ?string { return $this->lastName; }
 };
 $admin->notifyNow(new SchedulerJobFailed($error));
 
 // Any code → inline email recipient
-$contact = new class('customer@example.com', 'John', 'Doe') {
+$contact = new class($data) {
     use Notifiable;
-    use HasRouteNotificationForMail;
-    public function __construct(public readonly string $email, protected readonly string $firstName, protected readonly string $lastName) {}
-    public function getEmail(): string { return $this->email; }
-    public function getFirstName(): ?string { return $this->firstName; }
-    public function getLastName(): ?string { return $this->lastName; }
+    public function __construct(protected array $data) {}
 };
 $contact->notifyNow(new OrderReceiptEmail($order));
 ```
@@ -147,6 +166,8 @@ $contact->notifyNow(new OrderReceiptEmail($order));
 ---
 
 ## Channels
+
+It comes with 2 built-in channels:
 
 | Key | Class | Description |
 |---|---|---|
@@ -160,7 +181,7 @@ final class SlackChannel implements ChannelInterface
 {
     public function send(object $notifiable, Notification $notification): void
     {
-        $this->slack->post($notifiable->getSlackWebhookUrl(), $notification->toSlack($notifiable));
+        $this->slack->post($notifiable->routeNotificationForSlack(), $this->buildJsonPayload(($notifiable, $notification));
     }
 }
 ```
@@ -180,7 +201,7 @@ final class OrderConfirmed extends Notification implements ShouldQueue { }
 Run the worker:
 
 ```bash
-vendor/bin/typo3 messenger:consume async --time-limit=3600
+vendor/bin/typo3 messenger:consume
 ```
 
 Call `notifyNow()` / `sendNow()` to bypass the queue at any time.
@@ -211,7 +232,7 @@ Call `notifyNow()` / `sendNow()` to bypass the queue at any time.
 - Send immediately or queue for later, and resend at any time
 
 The module source (`Classes/Controller/Backend/NotificationController.php`)
-is intentionally simple and can be used as a reference for dispatching
+is intentionally simple and can be used as a reference for dispatching[UserNotificationsController.php](../../../../../LEX/INTRANET/DEMO/local-packages/intranet_notifications/Classes/Controller/UserNotificationsController.php)
 batch notifications from PHP code.
 
 ---
@@ -221,8 +242,15 @@ batch notifications from PHP code.
 ```php
 // In a frontend plugin
 $uid = $this->getContext()->getAspect('frontend.user')->get('id');
+// Or, in Extbase controller
+// $uid = $this->request->getAttribute('frontend.user')->getUserId();
 
 $notifications = $this->notificationRepository->findByNotifiable($uid);
+
+// Assign the notifications to the view
+$this->view->assign('notifications', $notifications);
+
+// Later, mark as read or remove all
 $this->notificationRepository->markAllAsReadForNotifiable($uid);
 $this->notificationRepository->removeAllForNotifiable($uid);
 ```

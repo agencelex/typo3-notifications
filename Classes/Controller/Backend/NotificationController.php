@@ -84,8 +84,8 @@ class NotificationController extends AbstractModuleController
 
         if(!$message) {
             $this->addFlashNotification(
-                'The message was not sent. Reason : Cannot find the requested message in the database.',
-                'Message not sent',
+                $this->translate('notification.sent.failure.not-found.message.body'),
+                $this->translate('notification.sent.failure.not-found.message.title'),
                 ContextualFeedbackSeverity::ERROR
             );
         } else {
@@ -113,8 +113,8 @@ class NotificationController extends AbstractModuleController
             $this->persistenceManager->persistAll();
 
             $this->addFlashNotification(
-                'I am a message rendered as notification',
-                'Hooray!',
+                $this->translate('notification.sent.success.message.body'),
+                $this->translate('notification.sent.success.message.title'),
             );
         }
 

@@ -1,7 +1,7 @@
-name: lex_notifications
+name: lex-notifications
 type: typo3
-docroot: public
-php_version: "8.1"
+docroot: .Build/public
+php_version: "8.2"
 webserver_type: nginx-fpm
 router_http_port: "80"
 router_https_port: "443"
@@ -25,16 +25,17 @@ web_environment:
   - TYPO3_SETUP_ADMIN_USERNAME=enter_your_username
   - TYPO3_SETUP_ADMIN_EMAIL=enter_your_email
   - TYPO3_SETUP_ADMIN_PASSWORD=enter_your_password
-  - TYPO3_PROJECT_NAME=Chaire de Recherche sur les Nouvelles Pratiques de Soins Infirmiers
+  - TYPO3_PROJECT_NAME=Laravel-style Notification System for TYPO3
   - TYPO3_SERVER_TYPE=apache
 nodejs_version: "18"
 hooks:
-#  pre-start:
-#    - exec-host: mkdir -p config/system
+  pre-start:
+    - exec-host: ddev mutagen reset
   post-start:
     - exec: pwd
-    - composer: install
-    - exec: test -f .Build/public/FIRST_INSTALL && (typo3 setup --no-interaction && typo3 extension:setup && rm -vf .Build/public/FIRST_INSTALL) || echo 'TYPO3 installed'
+    - exec: test -f .Build/public/FIRST_INSTALL && (composer install && chmod +x -R .Build/bin && typo3 setup --no-interaction && typo3 extension:setup && rm -vf .Build/public/FIRST_INSTALL) || echo 'TYPO3 already installed'
+    - exec: chmod +x -R .Build/bin
+    - exec-host: ddev status
 
 # Key features of ddev's config.yaml:
 

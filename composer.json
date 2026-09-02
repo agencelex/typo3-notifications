@@ -5,7 +5,17 @@
     "license": "GPL-2.0-or-later",
     "keywords": [
         "TYPO3",
-        "notifications"
+        "notifications",
+        "notification system",
+        "email",
+        "database",
+        "slack",
+        "telegram",
+        "sms",
+        "queue",
+        "middleware",
+        "extbase",
+        "fluid"
     ],
     "homepage": "https://extensions.typo3.org/extension/lex_notifications",
     "authors": [
@@ -29,7 +39,7 @@
         "typo3/cms-core": "^13.4",
 
         "nesbot/carbon": "^3.2",
-        "illuminate/collections": "^10.48"
+        "illuminate/collections": "^12.69"
     },
     "autoload": {
         "psr-4": {
@@ -42,9 +52,11 @@
         "optimize-autoloader": true,
         "sort-packages": true,
         "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "php-http/discovery": true,
+            "tbachert/spi": true,
             "typo3/class-alias-loader": true,
-            "typo3/cms-composer-installers": true,
-            "composer/package-versions-deprecated": true
+            "typo3/cms-composer-installers": true
         }
     },
     "require-dev": {

@@ -83,6 +83,7 @@ abstract class AbstractModuleController extends ActionController implements Logg
         }
 
         $this->moduleTemplate->assignMultiple([
+            'currentPid' => $this->pageUid,
             'dateFormat' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'],
             'timeFormat' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['hhmm'],
         ]);

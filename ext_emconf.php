@@ -9,8 +9,8 @@
  */
 
 $EM_CONF[$_EXTKEY] = [
-    'title'                 => 'Notifications',
-    'description'           => 'A Laravel-style notification system for TYPO3. Any PHP code — a controller, an Extbase plugin, a domain service, a Scheduler task, a middleware — can send a notification to any object that uses the Notifiable trait. Notifications can be sent via email, SMS, Slack, Telegram, or any other channel.',
+    'title'                 => 'Laravel-style Notification System for TYPO3',
+    'description'           => 'Modern Notification System for TYPO3 (Laravel-inspired). Any PHP code — a controller, an Extbase plugin, a domain service, a Scheduler task, a middleware — can send a notification to any object that uses the Notifiable trait. Notifications can be sent via email, SMS, Slack, Telegram, or any other channel.',
     'category'              => 'plugin',
     'version'               => '1.2.0',
     'state'                 => 'stable',

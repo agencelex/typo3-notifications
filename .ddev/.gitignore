@@ -29,9 +29,10 @@
 /providers/lagoon.yaml
 /providers/acquia.yaml
 /providers/upsun.yaml
+/providers/pantheon.yaml
+/share-providers
 /sequelpro.spf
 /settings/settings.ddev.py
 /traefik/
 /xhprof/xhprof_prepend.php
 /**/README.*
-config.yaml
