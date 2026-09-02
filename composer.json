@@ -1,0 +1,103 @@
+{
+    "name": "lex/notifications",
+    "description": "The extension lets you send notifications to users",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "TYPO3",
+        "notifications"
+    ],
+    "homepage": "https://www.agencelex.com/",
+    "authors": [
+        {
+            "name": "Agence Lex",
+            "email": "contact@agencelex.com",
+            "role": "Agency",
+            "homepage": "https://www.agencelex.com/"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/agencelex/typo3-notifications/issues"
+    },
+    "repositories": {
+        "composer": {
+            "type": "composer",
+            "url": "https://composer.typo3.org/"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "typo3/cms-core": "^13.4",
+
+        "nesbot/carbon": "^3.2",
+        "illuminate/collections": "^10.48"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lex\\Notifications\\": "Classes/"
+        }
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin",
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true,
+            "composer/package-versions-deprecated": true
+        }
+    },
+    "require-dev": {
+        "b13/make": "^0.9 || ^1.0",
+        "typo3/coding-standards": "^0.8",
+        "typo3/testing-framework": "^8.0",
+        "phpunit/phpunit": "^11.0",
+        "saschaegerer/phpstan-typo3": "^1.0",
+        "phpstan/extension-installer": "^1.4",
+        "symfony/var-dumper": "^7.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lex\\Notifications\\Tests\\": "Tests"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "app-dir": ".Build",
+            "web-dir": ".Build/public",
+            "extension-key": "lex_notifications"
+
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "cgl": [
+            "php-cs-fixer --diff -v fix"
+        ],
+        "cgl:ci": [
+            "php-cs-fixer --diff -v --dry-run fix"
+        ],
+        "phpstan": [
+            "phpstan analyze --configuration Build/phpstan.neon"
+        ],
+        "phpstan:baseline": [
+            "phpstan analyze --configuration Build/phpstan.neon --generate-baseline Build/phpstan-baseline.neon"
+        ],
+        "test": [
+            "@test:php:lint",
+            "@test:php:unit",
+            "@test:php:functional"
+        ],
+        "test:php:functional": [
+            "phpunit -c Build/phpunit-functional.xml"
+        ],
+        "test:php:lint": [
+            "phplint"
+        ],
+        "test:php:unit": [
+            "phpunit -c Build/phpunit-unit.xml"
+        ]
+    }
+}

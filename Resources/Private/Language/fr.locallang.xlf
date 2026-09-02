@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:lex_notifications/Resources/Private/Language/locallang.xlf" date="2025-05-03T14:30:01Z" product-name="lex_notifications">
+		<header/>
+		<body>
+			<trans-unit id="notification.level.label" resname="notification.level.label">
+				<source>Notification</source>
+				<target>Notification</target>
+			</trans-unit>
+			<trans-unit id="notification.level.0.label" resname="notification.level.0.label">
+				<source>Info</source>
+				<target>Info</target>
+			</trans-unit>
+			<trans-unit id="notification.level.1.label" resname="notification.level.1.label">
+				<source>Notice</source>
+				<target>Avis</target>
+			</trans-unit>
+			<trans-unit id="notification.level.2.label" resname="notification.level.2.label">
+				<source>Warning</source>
+				<target>Avertissement</target>
+			</trans-unit>
+			<trans-unit id="notification.level.3.label" resname="notification.level.3.label">
+				<source>Error</source>
+				<target>Erreur</target>
+			</trans-unit>
+			<trans-unit id="notification.level.4.label" resname="notification.level.4.label">
+				<source>Critical</source>
+				<target>Critique</target>
+			</trans-unit>
+			<trans-unit id="notification.level.5.label" resname="notification.level.5.label">
+				<source>Alert</source>
+				<target>Alerte</target>
+			</trans-unit>
+			<trans-unit id="notification.level.6.label" resname="notification.level.6.label">
+				<source>Emergency</source>
+				<target>Urgence</target>
+			</trans-unit>
+			<trans-unit id="notification.email.subject" resname="notification.email.subject">
+				<source>New notification from « %s »</source>
+				<target>Nouvelle notification de « %s »</target>
+			</trans-unit>
+			<trans-unit id="notification.email.link" resname="notification.email.link">
+				<source>Link : %s</source>
+				<target>Lien web : %s</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -1,0 +1,4 @@
+# Documentation about page.tsconfig : https://docs.typo3.org/m/typo3/reference-tsconfig/12.4/en-us/UsingSetting/PageTSconfig.html
+
+# Make the plugins available in the Backend New Content wizard under the tab Plugin
+@import 'EXT:lex_notifications/Configuration/TsConfig/Page/Mod/Wizards/NewContentElement/*.tsconfig'

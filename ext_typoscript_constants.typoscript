@@ -1,0 +1,11 @@
+module.lex_notifications {
+    view {
+        layoutRootPath = EXT:lex_notifications/Resources/Private/Layouts/Backend/
+        templateRootPath = EXT:lex_notifications/Resources/Private/Templates/Backend/
+        partialRootPath = EXT:lex_notifications/Resources/Private/Partials/Backend/
+    }
+
+    settings {
+
+    }
+}

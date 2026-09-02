@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:lex_notifications/Resources/Private/Language/locallang.xlf" date="2025-05-03T14:30:01Z" product-name="lex_notifications">
+		<header/>
+		<body>
+			<trans-unit id="notification.level.label" resname="notification.level.label">
+				<source>Notification</source>
+			</trans-unit>
+			<trans-unit id="notification.level.0.label" resname="notification.level.0.label">
+				<source>Info</source>
+			</trans-unit>
+			<trans-unit id="notification.level.1.label" resname="notification.level.1.label">
+				<source>Notice</source>
+			</trans-unit>
+			<trans-unit id="notification.level.2.label" resname="notification.level.2.label">
+				<source>Warning</source>
+			</trans-unit>
+			<trans-unit id="notification.level.3.label" resname="notification.level.3.label">
+				<source>Error</source>
+			</trans-unit>
+			<trans-unit id="notification.level.4.label" resname="notification.level.4.label">
+				<source>Critical</source>
+			</trans-unit>
+			<trans-unit id="notification.level.5.label" resname="notification.level.5.label">
+				<source>Alert</source>
+			</trans-unit>
+			<trans-unit id="notification.level.6.label" resname="notification.level.6.label">
+				<source>Emergency</source>
+			</trans-unit>
+			<trans-unit id="notification.email.subject" resname="notification.email.subject">
+				<source>New notification from « %s »</source>
+			</trans-unit>
+			<trans-unit id="notification.email.link" resname="notification.email.link">
+				<source>Link : %s</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

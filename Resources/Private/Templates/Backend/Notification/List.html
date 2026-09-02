@@ -1,0 +1,31 @@
+<html data-namespace-typo3-fluid="true"
+      xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+    <f:flashMessages />
+    <h1><f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:frontend.heading_text"/></h1>
+
+    <f:if condition="{paginator.paginatedItems -> f:count()}">
+        <f:then>
+            <f:render partial="Backend/Message/Filter" arguments="{_all}" />
+            <f:render partial="Backend/Message/PaginatedList" arguments="{_all}" />
+        </f:then>
+        <f:else>
+            <f:be.infobox state="{f:constant(name: 'TYPO3\CMS\Fluid\ViewHelpers\Be\InfoboxViewHelper::STATE_INFO')}" title="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.empty.title')}">
+                <p><f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.empty.message"/></p>
+                <be:link.newRecord
+                        class="btn btn-primary"
+                        table="tx_lexnotifications_domain_model_message"
+                        additionalAttributes="{'role':'button'}">
+                    <f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.btn.create.notification.label"/>
+                </be:link.newRecord>
+            </f:be.infobox>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:lex_notifications/Resources/Private/Language/locallang_db.xlf" date="2025-05-03T14:11:22Z" product-name="lex_notifications">
+		<header/>
+		<body>
+			<trans-unit id="tx_lexnotifications_domain_model_notification" resname="tx_lexnotifications_domain_model_notification">
+				<source>Notification</source>
+				<target>Notification</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.type.formlabel" resname="tx_lexnotifications_domain_model_notification.type.formlabel">
+				<source>The FQN of the notification class</source>
+				<target>Le FQN de la classe de Notification</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.notifiable_id.formlabel" resname="tx_lexnotifications_domain_model_notification.notifiable_id.formlabel">
+				<source>ID of the user notified or to be notified</source>
+				<target>ID de l&#039;utilisateur notifié ou à notifier</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.notifiable_type.formlabel" resname="tx_lexnotifications_domain_model_notification.notifiable_type.formlabel">
+				<source>The FQN of the notifiable class</source>
+				<target>Le FQN de la classe de l&#039;utilisateur</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.formlabel" resname="tx_lexnotifications_domain_model_notification.level.formlabel">
+				<source>Priority</source>
+				<target>Niveau d&#039;importance</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.0.formlabel" resname="tx_lexnotifications_domain_model_notification.level.0.formlabel">
+				<source>Info</source>
+				<target>Info</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.1.formlabel" resname="tx_lexnotifications_domain_model_notification.level.1.formlabel">
+				<source>Notice</source>
+				<target>Avis</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.2.formlabel" resname="tx_lexnotifications_domain_model_notification.level.2.formlabel">
+				<source>Warning</source>
+				<target>Avertissement</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.3.formlabel" resname="tx_lexnotifications_domain_model_notification.level.3.formlabel">
+				<source>Error</source>
+				<target>Erreur</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.4.formlabel" resname="tx_lexnotifications_domain_model_notification.level.4.formlabel">
+				<source>Critical</source>
+				<target>Critique</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.5.formlabel" resname="tx_lexnotifications_domain_model_notification.level.5.formlabel">
+				<source>Alert</source>
+				<target>Alerte</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.level.6.formlabel" resname="tx_lexnotifications_domain_model_notification.level.6.formlabel">
+				<source>Emergency</source>
+				<target>Urgence</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.data.formlabel" resname="tx_lexnotifications_domain_model_notification.data.formlabel">
+				<source>Payload</source>
+				<target>Charge utile</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_notification.read_at.formlabel" resname="tx_lexnotifications_domain_model_notification.read_at.formlabel">
+				<source>Timestamp for when the notification was read</source>
+				<target>Date et heure auxquelles la notification a été lue</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message" resname="tx_lexnotifications_domain_model_message">
+				<source>Notification Message</source>
+				<target>Message de notification</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.subject.formlabel" resname="tx_lexnotifications_domain_model_message.subject.formlabel">
+				<source>Subject</source>
+				<target>Sujet</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.message.formlabel" resname="tx_lexnotifications_domain_model_message.message.formlabel">
+				<source>Message</source>
+				<target>Message</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.link.formlabel" resname="tx_lexnotifications_domain_model_message.link.formlabel">
+				<source>Link</source>
+				<target>Lien web</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.link_browser_title.formlabel" resname="tx_lexnotifications_domain_model_message.link_browser_title.formlabel">
+				<source>Link selection</source>
+				<target>Selection du lien web</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.receivers.formlabel" resname="tx_lexnotifications_domain_model_message.receivers.formlabel">
+				<source>Receivers (Users or User groups)</source>
+				<target>Destinataires (Utilisateurs ou groupes d&#039;utilisateurs)</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.excluded_recipients.formlabel" resname="tx_lexnotifications_domain_model_message.excluded_recipients.formlabel">
+				<source>Excluded users or user groups</source>
+				<target>Utilisateurs ou groupes d&#039;utilisateurs à exclure</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.cruser.formlabel" resname="tx_lexnotifications_domain_model_message.cruser.formlabel">
+				<source>Creator</source>
+				<target>Créateur</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.crdate.formlabel" resname="tx_lexnotifications_domain_model_message.crdate.formlabel">
+				<source>Creation date</source>
+				<target>Date de création</target>
+			</trans-unit>
+			<trans-unit id="tx_lexnotifications_domain_model_message.sent_at.formlabel" resname="tx_lexnotifications_domain_model_message.sent_at.formlabel">
+				<source>Last dispatch date</source>
+				<target>Date du dernier envoi</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

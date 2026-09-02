@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf" date="2025-05-05T20:53:18Z" product-name="lex_notifications">
+		<header/>
+		<body>
+			<trans-unit id="mlang_tabs_tab" resname="mlang_tabs_tab">
+				<source>Notification Messages</source>
+				<target>Messages de notification</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel" resname="mlang_labels_tablabel">
+				<source>View, send, resend notification messages</source>
+				<target>Visualiser, envoyer, renvoyer des messages de notification</target>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr" resname="mlang_labels_tabdescr">
+				<source>View, send, resend notification messages</source>
+				<target>Visualiser, envoyer, renvoyer des messages de notification</target>
+			</trans-unit>
+			<trans-unit id="btn.create.notification.label" resname="btn.create.notification.label">
+				<source>Create a Notification Message</source>
+				<target>Créer un Message de notification</target>
+			</trans-unit>
+			<trans-unit id="frontend.heading_text" resname="frontend.heading_text">
+				<source>Notification Messages — Manage and send messages to Website users</source>
+				<target>Messages de notification — Gérer et envoyer des messages aux utilisateurs du site web</target>
+			</trans-unit>
+			<trans-unit id="view.list.empty.title" resname="view.list.empty.title">
+				<source>No notification messages found!</source>
+				<target>Aucun message de notification trouvé !</target>
+			</trans-unit>
+			<trans-unit id="view.list.empty.message" resname="view.list.empty.message">
+				<source>There are no notification messages in the selected folder. Please select another folder or create your first notification message in the current folder.</source>
+				<target>Il n&#039;y a pas de messages de notification dans le dossier sélectionné. Veuillez sélectionner un autre dossier ou créer votre premier message de notification dans le dossier courant.</target>
+			</trans-unit>
+			<trans-unit id="view.btn.create.notification.label" resname="view.btn.create.notification.label">
+				<source>Create</source>
+				<target>Créer</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.head.th.content" resname="view.list.table.head.th.content">
+				<source>Content</source>
+				<target>Contenu</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.head.th.sent_at" resname="view.list.table.head.th.sent_at">
+				<source>Status</source>
+				<target>Statut</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.head.th.channels" resname="view.list.table.head.th.channels">
+				<source>Channels</source>
+				<target>Canaux</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.btn.edit" resname="view.list.table.body.td.btn.edit">
+				<source>Edit</source>
+				<target>Modifier</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.status" resname="view.list.table.body.td.status">
+				<source>Sent</source>
+				<target>Envoyé</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.never" resname="view.list.table.body.td.never">
+				<source>Draft</source>
+				<target>Brouillon</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.resend.label" resname="view.list.table.body.td.resend.label">
+				<source>Resend</source>
+				<target>Renvoyer</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.resend.confirmation.header" resname="view.list.table.body.td.resend.confirmation.header">
+				<source>Resend notification message</source>
+				<target>Renvoyer la notification</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.resend.confirmation.text" resname="view.list.table.body.td.resend.confirmation.text">
+				<source>You are about to resend this Notification Message to all the users selected. Are you sure?</source>
+				<target>Vous êtes sur le point de renvoyer ce message de notification à tous les utilisateurs sélectionnés. Êtes-vous sûr de vous ?</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.resend.confirmation.btn.ok" resname="view.list.table.body.td.resend.confirmation.btn.ok">
+				<source>OK</source>
+				<target>Ok</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.cancel" resname="view.list.table.body.td.cancel">
+				<source>Cancel</source>
+				<target>Annuler</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.send.label" resname="view.list.table.body.td.send.label">
+				<source>Send</source>
+				<target>Envoyer</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.send.confirmation.header" resname="view.list.table.body.td.send.confirmation.header">
+				<source>Send notification message</source>
+				<target>Envoyer la notification</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.send.confirmation.text" resname="view.list.table.body.td.send.confirmation.text">
+				<source>You are about to send this Notification Message to all the users selected. Are you sure?</source>
+				<target>Vous êtes sur le point d&#039;envoyer ce message de notification à tous les utilisateurs sélectionnés. Êtes-vous sûr de vous ?</target>
+			</trans-unit>
+			<trans-unit id="view.list.table.body.td.send.confirmation.btn.ok" resname="view.list.table.body.td.send.confirmation.btn.ok">
+				<source>Send now</source>
+				<target>Envoyer maintenant</target>
+			</trans-unit>
+			<trans-unit id="pagination.previous" resname="pagination.previous">
+				<source>previous</source>
+				<target></target>
+			</trans-unit>
+			<trans-unit id="pagination.next" resname="pagination.next">
+				<source>next</source>
+				<target></target>
+			</trans-unit>
+			<trans-unit id="pagination.first" resname="pagination.first">
+				<source>first</source>
+				<target></target>
+			</trans-unit>
+			<trans-unit id="pagination.last" resname="pagination.last">
+				<source>last</source>
+				<target></target>
+			</trans-unit>
+			<trans-unit id="pagination.records" resname="pagination.records">
+				<source>Records</source>
+				<target></target>
+			</trans-unit>
+			<trans-unit id="pagination.page" resname="pagination.page">
+				<source>Page</source>
+				<target></target>
+			</trans-unit>
+			<trans-unit id="pagination.refresh" resname="pagination.refresh">
+				<source>Refresh</source>
+				<target></target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

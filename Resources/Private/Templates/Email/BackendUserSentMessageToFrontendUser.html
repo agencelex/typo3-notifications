@@ -1,0 +1,11 @@
+<f:layout name="NotificationLayout" />
+<f:section name="Subject"><f:translate key="notification.email.subject" extensionName="{extensionName}" arguments="{0: '{typo3.sitename}'}" /></f:section>
+<f:section name="Title"><f:translate key="notification.level.{level}.label" extensionName="{extensionName}" /> : {subject}</f:section>
+<f:section name="Main">
+    {message}
+    <br />
+    <f:if condition="{link}">
+        <f:variable name="realLink"><f:uri.typolink parameter="{link}" /></f:variable>
+        {f:translate(key:"notification.email.link", arguments:"{0: realLink}", extensionName:"{extensionName}")}
+    </f:if>
+</f:section>

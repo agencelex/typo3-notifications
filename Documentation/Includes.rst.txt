@@ -1,0 +1,7 @@
+.. This file is included at the top of every .rst file in this project.
+
+.. highlight:: php
+
+.. tip::
+
+   Use the table of contents in the left panel to navigate.

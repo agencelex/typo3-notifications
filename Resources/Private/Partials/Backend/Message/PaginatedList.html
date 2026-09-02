@@ -1,0 +1,116 @@
+<html data-namespace-typo3-fluid="true"
+      xmlns:backend="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+
+<div class="table-fit">
+    <table id="typo3-backend-user-list" class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th colspan="2"><f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.head.th.content" /></th>
+            <th class="col-datetime"><f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.head.th.sent_at" default="Status" /></th>
+            <th class=""><f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.head.th.channels" default="Channels" /></th>
+            <th class="col-control"><span class="visually-hidden"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels._CONTROL_" /></span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <f:for each="{paginator.paginatedItems}" as="message">
+            <tr>
+                <td class="col-avatar">
+                    <f:render partial="Backend/Message/Level" arguments="{message: message}" />
+                </td>
+                <td class="col-content">
+                    <backend:link.editRecord
+                            table="tx_lexnotifications_domain_model_message"
+                            uid="{message.uid}"
+                            title="{f:translate(key:'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.btn.edit', default: 'Edit')}"
+                            class="d-flex flex-column"
+                    >
+                        <span>{message.subject}</span>
+                        <span class="text-muted">{message.message -> f:format.crop(maxCharacters: 100, respectWordBoundaries: '1', respectHtml: '1')}</span>
+                    </backend:link.editRecord>
+                </td>
+                <td class="col-datetime">
+                    <f:if condition="{message.sentAt}">
+                        <f:then>
+                            <f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.status" default="Sent" /> (<f:format.date format="{dateFormat} {timeFormat}">{message.sentAt}</f:format.date>)
+                        </f:then>
+                        <f:else>
+                            <f:translate key="LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.never" default="Draft" />
+                        </f:else>
+                    </f:if>
+                </td>
+                <td class="">
+                    <f:replace search="," replace=", " value="{message.channels}" />
+                </td>
+                <td class="col-control">
+                    <div class="btn-group" role="group">
+                        <backend:link.editRecord
+                                class="btn btn-default"
+                                table="tx_lexnotifications_domain_model_message"
+                                uid="{message.uid}"
+                                title="{f:translate(key:'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.btn.edit', default: 'Edit')}"
+                                additionalAttributes="{'role':'button'}"
+                        >
+                            <core:icon identifier="actions-open" />
+                        </backend:link.editRecord>
+                        <f:if condition="{message.sentAt}">
+                            <f:then>
+                                <f:form.button
+                                        name="messageUid"
+                                        value="{message.uid}"
+                                        form="send"
+                                        class="btn btn-default t3js-modal-trigger"
+                                        title="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.resend.label', default: 'Resend')}"
+                                        type="submit"
+                                        data-severity="warning"
+                                        data-title="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.resend.confirmation.header', default: 'Resend notification message')}"
+                                        data-bs-content="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.resend.confirmation.text', default: 'You are about to resend this Notification Message to all the users selected. Are you sure?')}"
+                                        data-button-ok-text="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.resend.confirmation.btn.ok', default: 'Resend now')}"
+                                        data-button-close-text="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:view.list.table.body.td.cancel')}">
+                                    <core:icon identifier="actions-redo" />
+                                </f:form.button>
+                            </f:then>
+                            <f:else>
+                                <f:form.button
+                                        name="messageUid"
+                                        value="{message.uid}"
+                                        form="send"
+                                        class="btn btn-default t3js-modal-trigger"
+                                        title="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.send.label', default: 'Send')}"
+                                        type="submit"
+                                        data-severity="warning"
+                                        data-title="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.send.confirmation.header', default: 'Send notification message')}"
+                                        data-bs-content="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.send.confirmation.text', default: 'You are about to send this Notification Message to all the users selected. Are you sure?')}"
+                                        data-button-ok-text="{f:translate(key: 'LLL:EXT:lex_notifications/Resources/Private/Language/locallang_mod_notification.xlf:view.list.table.body.td.send.confirmation.btn.ok', default: 'Send now')}"
+                                        data-button-close-text="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:cancel')}">
+                                    <core:icon identifier="actions-paperplane" />
+                                </f:form.button>
+                            </f:else>
+                        </f:if>
+                        <a
+                                class="btn btn-default"
+                                href="#"
+                                title="{f:translate(key:'btn.info')}"
+                                data-dispatch-action="TYPO3.InfoWindow.showItem"
+                                data-dispatch-args-list="tx_lexnotifications_domain_model_message,{message.uid}"
+                                role="button"
+                        >
+                            <core:icon identifier="actions-document-info" />
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </f:for>
+
+        <f:form action="send" method="post" id="send" class="hidden"/>
+        <f:form action="resend" method="post" id="resend" class="hidden"/>
+        </tbody>
+        <tfoot>
+        <f:render partial="Backend/Message/Pagination" arguments="{paginator:paginator, pagination:pagination, actionName:'list'}" />
+        </tfoot>
+    </table>
+</div>
+
+</html>

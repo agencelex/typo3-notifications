@@ -1,0 +1,29 @@
+<html data-namespace-typo3-fluid="true"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+
+<f:switch expression="{message.level}">
+    <f:case value="{f:constant(name: '\Lex\Notifications\NotificationLevel::LEVEL_NOTICE')}">
+        <core:icon identifier="actions-exclamation-circle" size="medium" />
+    </f:case>
+    <f:case value="{f:constant(name: '\Lex\Notifications\NotificationLevel::LEVEL_WARNING')}">
+        <core:icon identifier="actions-exclamation-circle-alt" size="medium" />
+    </f:case>
+    <f:case value="{f:constant(name: '\Lex\Notifications\NotificationLevel::LEVEL_ERROR')}">
+        <core:icon identifier="actions-exclamation-triangle-alt" size="medium" />
+    </f:case>
+    <f:case value="{f:constant(name: '\Lex\Notifications\NotificationLevel::LEVEL_CRITICAL')}">
+        <core:icon identifier="actions-minus-circle-alt" size="medium" />
+    </f:case>
+    <f:case value="{f:constant(name: '\Lex\Notifications\NotificationLevel::LEVEL_ALERT')}">
+        <core:icon identifier="actions-bolt" size="medium" />
+    </f:case>
+    <f:case value="{f:constant(name: '\Lex\Notifications\NotificationLevel::LEVEL_EMERGENCY')}">
+        <core:icon identifier="actions-minus-square-alt" size="medium" />
+    </f:case>
+    <f:defaultCase>
+        <core:icon identifier="actions-info-circle" size="medium" />
+    </f:defaultCase>
+</f:switch>
+
+</html>
