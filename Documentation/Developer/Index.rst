@@ -43,8 +43,7 @@ Making a Model Notifiable
 
 For **email delivery**, also add ``HasRouteNotificationForMail``. This trait
 provides the ``routeNotificationForMail()`` method, which the email channel
-calls to resolve the recipient's email address. It expects an ``$email``
-property on the class:
+calls to resolve the recipient's email address:
 
 .. code-block:: php
 
@@ -57,7 +56,10 @@ property on the class:
        use Notifiable;
        use HasRouteNotificationForMail;
 
-       protected string $email = '';
+       // // Retrieve from the class properties, database or other source
+       public function getEmail(): string { return $this->email; }
+       public function getFirstName(): ?string { return $this->firstName; }
+       public function getLastName(): ?string { return $this->lastName; }
    }
 
 The ``Notifiable`` trait exposes two methods:
@@ -85,8 +87,9 @@ A collaboration feature where one user shares content with another:
 .. code-block:: php
 
    // In a frontend plugin action
-   $recipient = $this->frontendUserRepository->findByUid($targetUid);
-   $recipient->notify(new ContentSharedWithYou($page, $sender));
+   $sender = $this->notifiableFrontendUserRepository->findByUid($senderUid);
+   $recipients = $this->notifiableFrontendUserRepository->findByUids($recipientUids);
+   $this->notificationDispatcher->send($recipients, new ContentSharedWithYou($page, $sender));
 
 **Extension notifies a backend user**
 
@@ -94,22 +97,23 @@ A Scheduler task or service that alerts an admin when a background job fails:
 
 .. code-block:: php
 
-   // BackendNotifiableUser wraps a TYPO3 backend user record
-   class BackendNotifiableUser
-   {
+   // An inline class wrapping a backend user record — no persistent domain model needed
+   $admin = new class($backendUserRecord['email'], $backendUserRecord['realName']) {
        use Notifiable;
        use HasRouteNotificationForMail;
 
-       public function __construct(
-           public readonly string $email,
-           public readonly string $username,
-       ) {}
-   }
+       protected string $firstName;
+       protected string $lastName;
 
-   $admin = new BackendNotifiableUser(
-       email: $backendUserRecord['email'],
-       username: $backendUserRecord['username'],
-   );
+       public function __construct(protected readonly string $email, string $fullName) {
+           $parts = explode(' ', trim($fullName), 2);
+           $this->firstName = $parts[0] ?? '';
+           $this->lastName  = $parts[1] ?? '';
+       }
+       public function getEmail(): string { return $this->email; }
+       public function getFirstName(): ?string { return $this->firstName; }
+       public function getLastName(): ?string { return $this->lastName; }
+   };
    $admin->notifyNow(new SchedulerJobFailed($taskName, $errorMessage));
 
 **Inline / anonymous notifiable (no database record needed)**
@@ -122,7 +126,10 @@ Send a one-off notification to any email address without a domain model:
        use Notifiable;
        use HasRouteNotificationForMail;
 
-       public function __construct(public readonly string $email) {}
+       public function __construct(protected readonly string $email) {}
+       public function getEmail(): string { return $this->email; }
+       public function getFirstName(): ?string { return null; }
+       public function getLastName(): ?string { return null; }
    };
 
    $recipient->notifyNow(new ContactFormReceived($formData));
@@ -134,8 +141,10 @@ same class:
 
 .. code-block:: php
 
+    $team = [$teamMemberA, $teamMemberB, ...]
+
    $this->notificationDispatcher->send(
-       [$frontendUser, $backendAdmin, $externalEmail],
+       $team,
        new ImportantAnnouncement($text),
    );
 
@@ -179,6 +188,7 @@ channel your notification uses:
 
        /**
         * RFC 5424 severity level for this notification.
+        * Optional - Only if you want to specify a notification level different from INFO
         */
        public function getLevel(): int
        {
@@ -187,20 +197,18 @@ channel your notification uses:
 
        /**
         * Which channels to use. Receives the notifiable so you can adapt
-        * the channel list per recipient type.
+        * the channel list per recipient type/preference.
         *
         * @return string[]
         */
        public function via(object $notifiable): array
        {
-           return [
-               NotificationChannel::CHANNEL_MAIL,
-               NotificationChannel::CHANNEL_DATABASE,
-           ];
+           return $notifiable->prefers_sms ? ['vonage'] : [NotificationChannel::CHANNEL_MAIL, NotificationChannel::CHANNEL_DATABASE];
        }
 
        /**
-        * Payload for the email channel.
+        * Optional - Payload for the email channel.
+        * Build your own MailMessage if you want.
         */
        public function toMail(object $notifiable): MailMessage
        {
@@ -211,7 +219,7 @@ channel your notification uses:
        }
 
        /**
-        * Payload for the database channel.
+        * Optional - Payload for the database channel.
         * Returned array is JSON-encoded and stored as-is.
         *
         * @return array<string, mixed>
@@ -224,6 +232,17 @@ channel your notification uses:
                'message'  => 'Your order has been received and is being processed.',
                'order_id' => $this->order->getUid(),
            ];
+       }
+
+       /**
+        * Custom channel - Payload for the Slack channel.
+        */
+       public function toSlack(object $notifiable): SlackMessage
+       {
+           return (new SlackMessage)
+               ->...
+               ->...
+               ->...;
        }
    }
 
@@ -240,7 +259,7 @@ dispatched asynchronously via Symfony Messenger:
 
 .. code-block:: php
 
-   use TYPO3\CMS\Core\Messaging\ShouldQueue;
+   use Illuminate\Contracts\Queue\ShouldQueue;
 
    final class OrderConfirmed extends Notification implements ShouldQueue
    {
@@ -305,6 +324,14 @@ Send to a batch of recipients in one call:
 The dispatcher iterates each notifiable independently, so a failed delivery
 for one recipient does not block the others.
 
+You can also target a single specific channel for one call using ``channel()``:
+
+.. code-block:: php
+
+   // Deliver only via the database channel, regardless of what via() returns
+   $this->notificationDispatcher->channel(NotificationChannel::CHANNEL_DATABASE)
+       ->send($user, new InvoicePaid($invoice));
+
 .. _practical-use-cases:
 
 Practical Use Cases
@@ -315,7 +342,14 @@ Practical Use Cases
 .. code-block:: php
 
    // In a DataHandler hook or custom service
-   $responsible = new BackendNotifiableUser(email: 'editor@example.com');
+   $responsible = new class('editor@example.com') {
+       use \Lex\Notifications\Domain\Model\Ability\Notifiable;
+       use \Lex\Notifications\Domain\Model\Ability\HasRouteNotificationForMail;
+       public function __construct(protected readonly string $email) {}
+       public function getEmail(): string { return $this->email; }
+       public function getFirstName(): ?string { return null; }
+       public function getLastName(): ?string { return null; }
+   };
    $this->notifications->sendNow(
        $responsible,
        new ContentPendingReview($pageUid, $submitter),
@@ -326,8 +360,8 @@ Practical Use Cases
 .. code-block:: php
 
    // In a frontend plugin action (e.g. a messaging feature)
-   $sender   = $this->frontendUserRepository->findByUid($senderUid);
-   $receiver = $this->frontendUserRepository->findByUid($receiverUid);
+   $sender   = $this->notifiableFrontendUserRepository->findByUid($senderUid);
+   $receiver = $this->notifiableFrontendUserRepository->findByUid($receiverUid);
 
    $receiver->notify(new NewMessageReceived($sender, $messageText));
 
@@ -355,7 +389,7 @@ Practical Use Cases
    $contact = new class('customer@example.com') {
        use \Lex\Notifications\Domain\Model\Ability\Notifiable;
        use \Lex\Notifications\Domain\Model\Ability\HasRouteNotificationForMail;
-       public function __construct(public readonly string $email) {}
+       public function __construct(protected readonly string $email) {}
    };
 
    $contact->notifyNow(new OrderReceiptEmail($order));

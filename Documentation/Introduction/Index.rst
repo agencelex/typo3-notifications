@@ -11,7 +11,13 @@ Introduction
 What Does It Do?
 ================
 
-**lex_notifications** is a Laravel-style notification system for TYPO3 13.4+.
+If you are familiar with the Laravel framework, you already know how flexible,
+robust, and modular its notification system is. With dozens of community and
+official channels available (Slack, Teams, Push, SMS, VoIP, and more), Laravel
+empowers applications to send notifications across a vast network.
+
+**lex_notifications** brings this exact power, extensibility, and flexibility
+directly into the TYPO3 ecosystem.
 
 The core idea is simple: any PHP object that uses the ``Notifiable`` trait can
 *receive* a notification. Any PHP code — a controller, an Extbase plugin, a
@@ -24,7 +30,7 @@ There is no constraint on the direction of communication:
 *  A **frontend user** can receive a notification when they place an order.
 *  A **backend user** can be alerted when a content workflow step requires
    their approval.
-*  An **email address** (represented by a lightweight inline class) can receive
+*  An **email address** (represented by a class or even a lightweight inline class) can receive
    a transactional email without any database record.
 *  Any **custom domain model** becomes a notification recipient with a single
    ``use Notifiable;`` declaration.

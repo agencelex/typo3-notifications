@@ -3,14 +3,14 @@
 .. _start:
 
 =================
-Lex Notifications
+Laravel-style Notification System for TYPO3
 =================
 
 :Extension key:
    lex_notifications
 
 :Package name:
-   lex/notifications
+   agencelex/notifications
 
 :Version:
    |release|
@@ -31,11 +31,11 @@ Lex Notifications
 
 ----
 
-**lex_notifications** brings a Laravel-style notification system to TYPO3 13.4+.
-Any PHP class — a controller, a plugin, a service, or a domain model — can send
+**lex_notifications** brings the power, extensibility, and flexibility of Laravel's notification system to the TYPO3 ecosystem.
+Any PHP code — a controller, a plugin, a service, a domain model or a php file — can send
 a notification to any object that uses the ``Notifiable`` trait, through any
 combination of channels (email, database, Slack, …). The recipient can be a
-frontend user, a backend user, an email address, or even an anonymous inline
+frontend user, a backend user, a domain model, a POPO, or even an anonymous inline
 class: if it uses ``Notifiable``, it can receive notifications.
 
 A ready-to-use backend module is included. It lets editors send messages to

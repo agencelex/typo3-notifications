@@ -19,7 +19,7 @@ The extension requires two additional PHP packages that are pulled in
 automatically via Composer:
 
 *  ``nesbot/carbon`` ^3.2 — human-readable date/time differences
-*  ``illuminate/collections`` ^10.48 — fluent collection helpers
+*  ``illuminate/collections`` ^12.69 — fluent collection helpers
 
 .. _install-via-composer:
 
@@ -28,22 +28,10 @@ Installation via Composer (Recommended)
 
 .. code-block:: bash
 
-   composer require lex/notifications
-
-Then activate the extension:
-
-.. code-block:: bash
-
-   # via CLI
-   vendor/bin/typo3 extension:activate lex_notifications
-
-   # or via Admin Tools > Extensions in the TYPO3 backend
-
-Run the database analyser to create the required tables:
-
-.. code-block:: bash
-
-   vendor/bin/typo3 database:updateschema
+   composer require agencelex/notifications
+   vendor/bin/typo3 extension:setup
+   vendor/bin/typo3 upgrade:run
+   vendor/bin/typo3 cache:flush
 
 .. _install-via-ter:
 
@@ -67,18 +55,7 @@ Installation via TER (non-Composer)
 Post-Installation Steps
 =======================
 
-After installation:
-
-1. **Include TypoScript** (if you need the frontend plugin):
-
-   Go to your root page's TypoScript template record and add the static
-   template *"Lex Notifications (lex_notifications)"* under
-   **Includes > Include static (from extensions)**.
-
-2. **Clear all caches** via Admin Tools > Maintenance.
-
-3. The backend module **Web > Notifications** is now available for backend
-   users with the required permissions.
+No configuration needed. Login in the backend, and verify that the module **Notification Messages** is present.
 
 .. _database-tables:
 

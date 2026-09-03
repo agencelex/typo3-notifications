@@ -38,7 +38,7 @@ To process the queue, configure a transport and run the messenger worker:
 
 .. code-block:: bash
 
-   vendor/bin/typo3 messenger:consume async --time-limit=3600
+   vendor/bin/typo3 messenger:consume
 
 Refer to the TYPO3 Core documentation on `Symfony Messenger`_ for full
 transport configuration options (Doctrine, Redis, AMQP, etc.).
@@ -53,14 +53,14 @@ call ``notifyNow()`` instead of ``notify()`` — see :ref:`developer-api`.
 Backend Module Access
 =====================
 
-The **Web > Notifications** module is registered under the ``web`` module
+The **Web > Notification Messages** module is registered under the ``web`` module
 group. Access is controlled via TYPO3's standard backend user/group
 permissions.
 
 To grant a backend user group access:
 
 1. Go to **System > Backend Users** and edit the relevant user group.
-2. Under **Access Lists > Modules**, tick **Web > Notifications**.
+2. Under **Access Lists > Modules**, tick **Web > Notification Messages**.
 3. Save and clear caches.
 
 .. _notification-levels:

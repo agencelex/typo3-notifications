@@ -10,3 +10,4 @@ packages/*
 var/
 
 /**/._*
+/Documentation-GENERATED-temp

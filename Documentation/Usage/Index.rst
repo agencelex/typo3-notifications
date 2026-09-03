@@ -2,9 +2,9 @@
 
 .. _usage:
 
-=====================================
-Backend Module: Web > Notifications
-=====================================
+===========================================
+Backend Module: Web > Notification Messages
+===========================================
 
 .. note::
    The backend module is **one built-in application** of the notification
@@ -14,7 +14,7 @@ Backend Module: Web > Notifications
    useful **reference implementation** of how to dispatch batch notifications
    to a resolved list of ``Notifiable`` recipients.
 
-After installation, navigate to **Web > Notifications** in the TYPO3 backend.
+After installation, navigate to **Web > Notification Messages** in the TYPO3 backend.
 The module lets editors compose messages and deliver them to frontend users
 (individuals or groups) via email and/or database notifications.
 
