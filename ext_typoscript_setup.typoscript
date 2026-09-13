@@ -1,3 +1,4 @@
+/*
 module.tx_lexnotifications {
     view {
         templateRootPaths {
@@ -5,11 +6,11 @@ module.tx_lexnotifications {
             1 = {$module.lex_notifications.view.templateRootPath}
         }
         partialRootPaths {
-            0 = EXT:intranet_greeting_cards/Resources/Private/Partials/Backend/
+            0 = EXT:lex_notifications/Resources/Private/Partials/Backend/
             1 = {$module.lex_notifications.view.partialRootPath}
         }
         layoutRootPaths {
-            0 = EXT:intranet_greeting_cards/Resources/Private/Layouts/Backend/
+            0 = EXT:lex_notifications/Resources/Private/Layouts/Backend/
             1 = {$module.lex_notifications.view.layoutRootPath}
         }
     }
@@ -18,3 +19,4 @@ module.tx_lexnotifications {
 
     }
 }
+*/

@@ -37,7 +37,7 @@ class NotificationManager implements NotificationDispatcherInterface
         ))->send($notifiables, $notification);
     }
 
-    public function sendNow(object|array $notifiables, Notification $notification, array $channels = null): void
+    public function sendNow(object|array $notifiables, Notification $notification, ?array $channels = null): void
     {
         (new NotificationSender(
             $this,

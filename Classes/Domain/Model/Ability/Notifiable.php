@@ -14,7 +14,7 @@ trait Notifiable
             ->send($this, $notification);
     }
 
-    public function notifyNow(Notification $notification, array $channels = null): void
+    public function notifyNow(Notification $notification, ?array $channels = null): void
     {
         GeneralUtility::makeInstance(Dispatcher::class)
             ->sendNow($this, $notification, $channels);

@@ -2,26 +2,25 @@
 
 namespace Lex\Notifications\Controller\Backend;
 
-use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Authentication\GroupResolver;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
-use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
-use TYPO3\CMS\Core\Type\Bitmask\Permission;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Lex\Notifications\Extension;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Authentication\GroupResolver;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 abstract class AbstractModuleController extends ActionController implements LoggerAwareInterface
@@ -32,23 +31,15 @@ abstract class AbstractModuleController extends ActionController implements Logg
     protected ?ModuleTemplate $moduleTemplate = null;
     protected ?PageRenderer $pageRenderer = null;
     protected ?IconFactory $iconFactory = null;
-    protected array $extensionConfiguration = [];
 
     protected int $pageUid = 0;
 
     protected ?BackendUriBuilder $backendUriBuilder = null;
 
-    /**
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     */
     protected function initializeAction(): void
     {
-        $this->extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Extension::KEY);
         $this->pageUid = (int)($this->request->getQueryParams()['id'] ?? 0);
-
         $this->initializeModuleTemplate();
-
         parent::initializeAction();
     }
 
@@ -57,15 +48,15 @@ abstract class AbstractModuleController extends ActionController implements Logg
         return $GLOBALS['BE_USER'];
     }
 
-    public static abstract function getModuleName(): string;
+    abstract public static function getModuleName(): string;
 
-    protected function translate(string $key, string $llFile = null, ?array $arguments = null): string
+    protected function translate(string $key, ?string $llFile = null, ?array $arguments = null): string
     {
-        if(!$llFile) {
+        if (!$llFile) {
             $llFile = 'LLL:EXT:' . Extension::KEY . '/Resources/Private/Language/locallang_mod_' . static::getModuleName() . '.xlf';
         }
 
-        return LocalizationUtility::translate($llFile . ':' . $key, Extension::KEY , $arguments);
+        return LocalizationUtility::translate($llFile . ':' . $key, Extension::KEY, $arguments) ?? $key;
     }
 
     private function initializeModuleTemplate(): void
@@ -94,10 +85,8 @@ abstract class AbstractModuleController extends ActionController implements Logg
         string $messageTitle = '',
         ContextualFeedbackSeverity $severity = ContextualFeedbackSeverity::OK,
         bool $storeInSession = true
-    ): void
-    {
-        $flashMessage = GeneralUtility::makeInstance(
-            FlashMessage::class,
+    ): void {
+        $flashMessage = new FlashMessage(
             $messageBody,
             $messageTitle,
             $severity,
@@ -159,5 +148,4 @@ abstract class AbstractModuleController extends ActionController implements Logg
     {
         $this->backendUriBuilder = $backendUriBuilder;
     }
-
 }

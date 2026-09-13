@@ -20,7 +20,6 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\View\ViewFactoryData;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
-use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 class BackendUserSentMessageToFrontendUser extends Notification implements ShouldQueue
@@ -47,7 +46,7 @@ class BackendUserSentMessageToFrontendUser extends Notification implements Shoul
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = new MailMessage();
+        $mail = GeneralUtility::makeInstance(MailMessage::class);
         $mail
             ->subject(LocalizationUtility::translate('notification.email.subject', Extension::KEY, [$GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename']]))
             ->html($this->renderEmailTemplate($notifiable));
@@ -113,8 +112,7 @@ class BackendUserSentMessageToFrontendUser extends Notification implements Shoul
      */
     protected function getRequest(): ServerRequestInterface
     {
-        if(isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof RequestInterface) {
-            // We are in MVC context with Extbase
+        if (isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
             return $GLOBALS['TYPO3_REQUEST'];
         }
 

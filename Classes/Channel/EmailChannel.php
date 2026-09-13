@@ -2,6 +2,7 @@
 
 namespace Lex\Notifications\Channel;
 
+use TYPO3\CMS\Core\Mail\MailerInterface;
 use Lex\Notifications\Notification;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -12,6 +13,10 @@ class EmailChannel implements ChannelInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    public function __construct(
+        private MailerInterface $mailer
+    ) {}
+
     public function send(object $notifiable, Notification $notification): void
     {
         $message = $notification->toMail($notifiable);
@@ -21,6 +26,6 @@ class EmailChannel implements ChannelInterface, LoggerAwareInterface
             $message->to($emailAddress);
         }
 
-        $message->send();
+        $this->mailer->send($message);
     }
 }

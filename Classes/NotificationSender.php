@@ -28,7 +28,7 @@ readonly class NotificationSender
         $this->sendNow($notifiables, $notification);
     }
 
-    public function sendNow(array|object $notifiables, Notification $notification, array $channels = null): void
+    public function sendNow(array|object $notifiables, Notification $notification, ?array $channels = null): void
     {
         $notifiables = $this->formatNotifiables($notifiables);
 

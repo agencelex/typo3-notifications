@@ -43,8 +43,6 @@ class NotificationController extends AbstractModuleController
 
     public function listAction(int $currentPage = 1): ResponseInterface
     {
-        $moduleData = $this->request->getAttribute('moduleData');
-
         $messages = $this->messageRepository->findAll();
 
         $paginator = new QueryResultPaginator($messages, $currentPage, 50);
@@ -60,7 +58,6 @@ class NotificationController extends AbstractModuleController
 
     public function createAction(): ResponseInterface
     {
-
         return $this->moduleTemplate->renderResponse('Backend/Notification/Create');
     }
 
@@ -82,14 +79,13 @@ class NotificationController extends AbstractModuleController
         /** @var Message $message */
         $message = $this->messageRepository->findByUid($messageUid);
 
-        if(!$message) {
+        if (!$message) {
             $this->addFlashNotification(
                 $this->translate('notification.sent.failure.not-found.message.body'),
                 $this->translate('notification.sent.failure.not-found.message.title'),
                 ContextualFeedbackSeverity::ERROR
             );
         } else {
-
             $targetUserIds = array_diff(
                 $this->resolveFrontendUserIds($message->getReceivers()),
                 $this->resolveFrontendUserIds($message->getExcludedRecipients())

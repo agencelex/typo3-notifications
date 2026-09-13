@@ -21,5 +21,5 @@ interface NotificationDispatcherInterface
      * @param array|null $channels
      * @return void
      */
-    public function sendNow(array|object $notifiables, Notification $notification, array $channels = null): void;
+    public function sendNow(array|object $notifiables, Notification $notification, ?array $channels = null): void;
 }

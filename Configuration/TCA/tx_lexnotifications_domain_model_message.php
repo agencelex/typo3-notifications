@@ -16,7 +16,6 @@ $tx_lexnotifications_domain_model_message = [
         //'descriptionColumn' => 'message',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser',
         'delete' => 'deleted',
         'default_sortby' => 'tstamp DESC',
         'searchFields' => 'subject,message',
@@ -28,11 +27,6 @@ $tx_lexnotifications_domain_model_message = [
             //'ignoreWebMountRestriction' => true,
             //'ignoreRootLevelRestriction' => true,
         ],
-    ],
-    'interface' => [
-        'maxDBListItems' => 30,
-        'maxSingleDBListItems' => 50,
-        'showRecordFieldList' => 'cruser,crdate'
     ],
     'columns' => [
 

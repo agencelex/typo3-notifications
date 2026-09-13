@@ -42,10 +42,6 @@ $tx_lexnotifications_domain_model_notification = [
             //'ignoreRootLevelRestriction' => true,
         ],
     ],
-    'interface' => [
-        'maxDBListItems' => 30,
-        'maxSingleDBListItems' => 50,
-    ],
     'columns' => [
 
         // Place config of your fields here
@@ -55,7 +51,6 @@ $tx_lexnotifications_domain_model_notification = [
             'config' => [
                 'type' => 'input',
                 'size' => 50,
-                'eval' => 'trim',
                 'required' => true,
             ],
         ],
@@ -63,9 +58,8 @@ $tx_lexnotifications_domain_model_notification = [
             'exclude' => true,
             'label' => $lll . '.notifiable_id.formlabel',
             'config' => [
-                'type' => 'input',
+                'type' => 'number',
                 'size' => 10,
-                'eval' => 'int',
                 'required' => true,
             ],
         ],
@@ -75,7 +69,6 @@ $tx_lexnotifications_domain_model_notification = [
             'config' => [
                 'type' => 'input',
                 'size' => 50,
-                'eval' => 'trim',
                 'required' => true,
             ],
         ],
@@ -209,8 +202,7 @@ $tx_lexnotifications_domain_model_notification = [
                 starttime;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:starttime_formlabel,
                 endtime;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:endtime_formlabel,
                 --linebreak--,
-                fe_group;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:fe_group_formlabel,
-                --linebreak--,editlock
+                fe_group;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:fe_group_formlabel
             ',
         ],
             /*
