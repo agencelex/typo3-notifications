@@ -1,9 +1,10 @@
 # lex_notifications — TYPO3 Notification System
 
 [![TYPO3 13.4](https://img.shields.io/badge/TYPO3-13.4-orange.svg)](https://typo3.org/)
+[![TYPO3 14](https://img.shields.io/badge/TYPO3-14-orange.svg)](https://typo3.org/)
 [![PHP 8.2+](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://www.php.net/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-green.svg)](https://opensource.org/licenses/GPL-2.0)
-[![Version](https://img.shields.io/badge/version-1.1.0-brightgreen.svg)](https://extensions.typo3.org/extension/lex_notifications)
+[![Version](https://img.shields.io/badge/version-2.0.0-brightgreen.svg)](https://extensions.typo3.org/extension/lex_notifications)
 
 A Laravel-style notification system for TYPO3. Any PHP class can send a
 notification to any object that uses the `Notifiable` trait — through any
@@ -24,7 +25,7 @@ implementation for dispatching batch notifications from PHP code.
 
 | Dependency | Version |
 |---|---------|
-| TYPO3 CMS | ^13.4   |
+| TYPO3 CMS | ^13.4 \|\| ^14 |
 | PHP | ^8.2    |
 | nesbot/carbon | ^3.2    |
 | illuminate/collections | ^12.69  |
@@ -56,7 +57,7 @@ class FrontendUser extends AbstractEntity
     use HasRouteNotificationForMail; // Needed for email delivery, remove if not needed
 
     // When using HasRouteNotificationForMail
-    public function getEmail(): string { return 'john.doe@example.com'; } // Retrieve from local attributes, database or other source
+    public function getEmail(): string { return 'john.doe@example.com'; }
     public function getFirstName(): ?string { return null; }
     public function getLastName(): ?string { return null; }
 }
@@ -118,7 +119,6 @@ $this->notificationDispatcher->sendNow($user, new OrderConfirmed($order));
 
 // Multiple recipients
 $this->notificationDispatcher->send([$userA, $userB], new Announcement());
-$this->notificationDispatcher->sendNow([$userA, $userB], new Announcement());
 
 // To a specific channel
 $this->notificationDispatcher->channel(NotificationChannel::CHANNEL_DATABASE)->send($user, new InvoicePaid($invoice));
@@ -167,26 +167,55 @@ $contact->notifyNow(new OrderReceiptEmail($order));
 
 ## Channels
 
-It comes with 2 built-in channels:
+Two built-in channels are included:
 
 | Key | Class | Description |
 |---|---|---|
 | `mail` | `EmailChannel` | HTML/plain-text email via TYPO3 mail system |
 | `database` | `DatabaseChannel` | Persisted in-app notifications via Extbase |
 
-Add any channel by implementing `ChannelInterface`:
+### Adding a Custom Channel
+
+Implement `ChannelInterface` — the channel is **automatically registered** with no
+additional configuration required:
 
 ```php
+use Lex\Notifications\Channel\ChannelInterface;
+use Lex\Notifications\Notification;
+
 final class SlackChannel implements ChannelInterface
 {
+    public function __construct(private readonly SlackClient $slack) {}
+
+    // Optional: provide a short string key used in via().
+    // If omitted, the fully-qualified class name is used as the key.
+    public function getName(): string
+    {
+        return 'slack';
+    }
+
     public function send(object $notifiable, Notification $notification): void
     {
-        $this->slack->post($notifiable->routeNotificationForSlack(), $this->buildJsonPayload(($notifiable, $notification));
+        $this->slack->post(
+            $notifiable->routeNotificationForSlack(),
+            $notification->toSlack($notifiable)
+        );
     }
 }
 ```
 
-Return the channel's string key from `via()` and it will be resolved automatically.
+Then return the key from `via()`:
+
+```php
+public function via(object $notifiable): array
+{
+    return ['slack', NotificationChannel::CHANNEL_DATABASE];
+}
+```
+
+The `NotificationManager` resolves the channel by its key at send time. All
+classes implementing `ChannelInterface` in any loaded extension are
+automatically tagged and injected — **no `Services.yaml` entry needed**.
 
 ---
 
@@ -232,7 +261,7 @@ Call `notifyNow()` / `sendNow()` to bypass the queue at any time.
 - Send immediately or queue for later, and resend at any time
 
 The module source (`Classes/Controller/Backend/NotificationController.php`)
-is intentionally simple and can be used as a reference for dispatching[UserNotificationsController.php](../../../../../LEX/INTRANET/DEMO/local-packages/intranet_notifications/Classes/Controller/UserNotificationsController.php)
+is intentionally simple and can be used as a reference for dispatching
 batch notifications from PHP code.
 
 ---
@@ -242,8 +271,6 @@ batch notifications from PHP code.
 ```php
 // In a frontend plugin
 $uid = $this->getContext()->getAspect('frontend.user')->get('id');
-// Or, in Extbase controller
-// $uid = $this->request->getAttribute('frontend.user')->getUserId();
 
 $notifications = $this->notificationRepository->findByNotifiable($uid);
 
@@ -274,7 +301,7 @@ composer run test
 
 ## Documentation
 
-Full documentation: https://docs.typo3.org/p/lex/notifications/1.1/en-us/
+Full documentation: https://docs.typo3.org/p/lex/notifications/2.0/en-us/
 
 ---
 

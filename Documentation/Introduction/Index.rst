@@ -43,7 +43,8 @@ Built-in delivery channels:
    can be retrieved and displayed as an in-app notification centre.
 
 Both channels are extensible. Implement ``ChannelInterface`` to add Slack,
-push notifications, SMS, webhooks, or any other transport.
+push notifications, SMS, webhooks, or any other transport — the channel is
+**automatically registered** with no configuration required.
 
 **The included backend module** (Web > Notifications) is a ready-to-use tool
 for editors who need to compose and send messages to frontend users. It also

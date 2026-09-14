@@ -501,7 +501,13 @@ Each stored notification exposes:
 Adding Custom Channels
 ======================
 
-Implement ``ChannelInterface`` to create any delivery channel you need:
+Any class that implements ``ChannelInterface`` is **automatically discovered
+and registered** — no ``Services.yaml`` entry is required in your extension.
+The ``_instanceof`` rule in the extension's own ``Services.yaml`` tags every
+``ChannelInterface`` implementation with ``notifications.channel``, and the
+``NotificationManager`` collects them all via ``#[AutowireIterator]``.
+
+**Step 1 — implement the interface**
 
 .. code-block:: php
 
@@ -516,6 +522,15 @@ Implement ``ChannelInterface`` to create any delivery channel you need:
            private readonly SlackClient $slack,
        ) {}
 
+       /**
+        * Optional. Provides a short string key used in via().
+        * When omitted, the fully-qualified class name is used as the key.
+        */
+       public function getName(): string
+       {
+           return 'slack';
+       }
+
        public function send(object $notifiable, Notification $notification): void
        {
            $payload = $notification->toSlack($notifiable);
@@ -523,9 +538,34 @@ Implement ``ChannelInterface`` to create any delivery channel you need:
        }
    }
 
-Register the channel as a service in ``Services.yaml`` and return its string
-key (e.g. ``'slack'``) from your notification's ``via()`` method. The
-``NotificationManager`` will resolve it from the container automatically.
+**Step 2 — return the key from** ``via()``
+
+.. code-block:: php
+
+   public function via(object $notifiable): array
+   {
+       return ['slack', NotificationChannel::CHANNEL_MAIL];
+   }
+
+The ``NotificationManager`` resolves the channel by its key at send time.
+If ``getName()`` is not defined, use the fully-qualified class name as the
+key in ``via()``:
+
+.. code-block:: php
+
+   public function via(object $notifiable): array
+   {
+       return [MyVendor\MyExtension\Notification\Channel\SlackChannel::class];
+   }
+
+.. note::
+   Dependency injection works normally. Declare constructor arguments as
+   usual and they will be autowired by the Symfony DI container.
+
+Channel key lookup order:
+
+1. ``getName()`` — if the method exists on the channel class.
+2. Fully-qualified class name — as a fallback.
 
 .. _email-templates:
 

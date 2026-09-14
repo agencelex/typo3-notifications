@@ -11,7 +11,7 @@ Installation
 Requirements
 ============
 
-*  TYPO3 CMS **13.4** or higher
+*  TYPO3 CMS **13.4** or **14** or higher
 *  PHP **8.2** or higher
 *  Composer-based TYPO3 installation (strongly recommended)
 

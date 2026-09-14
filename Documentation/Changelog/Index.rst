@@ -6,6 +6,42 @@
 Changelog
 =========
 
+.. _changelog-1-3-0:
+
+2.0.0
+=====
+
+*  **[FEATURE]** Channels implementing ``ChannelInterface`` are now
+   **automatically registered** via a Symfony DI ``_instanceof`` tag
+   (``notifications.channel``). No manual ``Services.yaml`` entry is required
+   in the consuming extension.
+*  **[FEATURE]** Optional ``getName(): string`` method on channel classes.
+   When present, its return value is used as the channel key in ``via()``.
+   When absent, the fully-qualified class name is used as the key.
+*  **[FEATURE]** ``NotificationManager`` now collects channels through
+   ``#[AutowireIterator('notifications.channel')]`` and stores live service
+   instances — channels benefit from full DI, including scoped services.
+*  **[BREAKING]** ``NotificationManager::channel()`` now resolves from the
+   injected service map instead of calling ``GeneralUtility::makeInstance()``.
+   Custom channels previously registered only as public services must add the
+   ``notifications.channel`` tag (or implement ``ChannelInterface`` so the
+   ``_instanceof`` rule picks them up automatically).
+*  **[CHANGE]** Added TYPO3 **14** compatibility (``^13.4 || ^14``).
+*  **[CHANGE]** ``AbstractModuleController`` converted to constructor
+   injection. Removed deprecated setter-injection methods
+   (``injectModuleTemplateFactory``, ``injectPageRenderer``,
+   ``injectIconFactory``, ``injectBackendUriBuilder``).
+*  **[FIX]** ``?array $channels = null`` parameter type corrected across
+   ``NotificationDispatcherInterface``, ``NotificationManager``,
+   ``NotificationSender``, and the ``Notifiable`` trait.
+*  **[FIX]** TCA: removed deprecated ``interface`` key (dropped in TYPO3 13),
+   ``cruser_id`` ctrl field (removed in TYPO3 13), and ``eval => 'trim'`` /
+   ``eval => 'int'`` validators (removed in TYPO3 13).
+*  **[FIX]** ``notifiable_id`` TCA field changed from ``type=input`` to
+   ``type=number``.
+*  **[FIX]** SQL schema: removed ``int(11)`` display width, added missing
+   ``link`` column in ``tx_lexnotifications_domain_model_message``.
+
 .. _changelog-1-1-0:
 
 1.1.0 — 2024-01-01
