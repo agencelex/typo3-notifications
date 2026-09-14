@@ -181,14 +181,16 @@ additional configuration required:
 
 ```php
 use Lex\Notifications\Channel\ChannelInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Lex\Notifications\Notification;
 
+#[AutoconfigureTag('notifications.channel')]
 final class SlackChannel implements ChannelInterface
 {
     public function __construct(private readonly SlackClient $slack) {}
 
     // Optional: provide a short string key used in via().
-    // If omitted, the fully-qualified class name is used as the key.
+    // If omitted, the fully qualified class name is used as the key.
     public function getName(): string
     {
         return 'slack';
@@ -213,9 +215,47 @@ public function via(object $notifiable): array
 }
 ```
 
-The `NotificationManager` resolves the channel by its key at send time. All
-classes implementing `ChannelInterface` in any loaded extension are
-automatically tagged and injected — **no `Services.yaml` entry needed**.
+The `NotificationManager` resolves the channel by its key at send time. To ensure a custom channel is properly detected and registered into the manager's iterator, you must assign the `notifications.channel` tag to your class.
+
+You can achieve this in **one of three ways**:
+
+#### 1. Declaration in `Services.yaml`
+Add your concrete channel class manually with the required tag in your extension's `Configuration/Services.yaml`:
+
+```yaml
+services:
+    Lex\Notifications\MicrosoftTeams\Channel\TeamsChannel:
+        tags: ['notifications.channel']
+```
+
+#### 2. Using `#[AutoconfigureTag]` in the channel class (Recommended)
+Keep your YAML file clean by adding the Symfony attribute directly above your class definition:
+
+```php
+use Lex\Notifications\Channel\ChannelInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+#[AutoconfigureTag('notifications.channel')]
+final class TeamsChannel implements ChannelInterface
+{
+    // ... Your channel logic
+}
+```
+
+#### 3. Using `#[Autoconfigure]` in the channel class
+If you need to change other service options (like visibility) while registering the tag, you can pass the tags directly into the `#[Autoconfigure]` attribute:
+
+```php
+use Lex\Notifications\Channel\ChannelInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+
+#[Autoconfigure(public: true, tags: ['notifications.channel'])]
+final class TeamsChannel implements ChannelInterface
+{
+    // ... Your channel logic
+}
+```
+
 
 ---
 
