@@ -8,13 +8,12 @@ Changelog
 
 .. _changelog-1-3-0:
 
-2.0.0
+1.3.0
 =====
 
-*  **[FEATURE]** Channels implementing ``ChannelInterface`` are now
-   **automatically registered** via a Symfony DI ``_instanceof`` tag
-   (``notifications.channel``). No manual ``Services.yaml`` entry is required
-   in the consuming extension.
+*  **[FEATURE]** Custom channels implementing ``ChannelInterface`` can now
+   **be registered** via a Symfony DI tag
+   (``notifications.channel``).
 *  **[FEATURE]** Optional ``getName(): string`` method on channel classes.
    When present, its return value is used as the channel key in ``via()``.
    When absent, the fully-qualified class name is used as the key.
