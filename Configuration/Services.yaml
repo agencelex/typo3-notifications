@@ -14,6 +14,12 @@ services:
         class: Lex\Notifications\NotificationManager
         public: true
 
+    # All classes that implement ChannelInterface will have that tag and therefore be registered as a channel and injected into the NotificationManager.
+    _instanceof:
+        Lex\Notifications\Channel\ChannelInterface:
+            tags:
+                - name: 'notifications.channel'
+
     Lex\Notifications\Queue\Handler\SendQueuedNotificationNow:
         tags:
             - name: 'messenger.message_handler'

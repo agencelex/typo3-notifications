@@ -4,6 +4,7 @@ namespace Lex\Notifications\Channel;
 
 use Lex\Notifications\Domain\Model\DatabaseNotification;
 use Lex\Notifications\Notification;
+use Lex\Notifications\NotificationChannel;
 use TYPO3\CMS\Core\Utility\Exception\NotImplementedMethodException;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
@@ -41,4 +42,6 @@ class DatabaseChannel implements ChannelInterface
 
         throw new NotImplementedMethodException(sprintf("Notification class %s must implement 'toDatabase' to be able to notify via database", $notification->getType()));
     }
+
+    public function getName(): string { return NotificationChannel::CHANNEL_DATABASE; }
 }

@@ -2,6 +2,7 @@
 
 namespace Lex\Notifications\Channel;
 
+use Lex\Notifications\NotificationChannel;
 use TYPO3\CMS\Core\Mail\MailerInterface;
 use Lex\Notifications\Notification;
 use Psr\Log\LoggerAwareInterface;
@@ -28,4 +29,6 @@ class EmailChannel implements ChannelInterface, LoggerAwareInterface
 
         $this->mailer->send($message);
     }
+
+    public function getName(): string { return NotificationChannel::CHANNEL_MAIL; }
 }
