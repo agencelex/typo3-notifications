@@ -301,7 +301,7 @@ composer run test
 
 ## Documentation
 
-Full documentation: https://docs.typo3.org/p/lex/notifications/2.0/en-us/
+Full documentation: https://docs.typo3.org/p/agencelex/notifications/1.3/en-us/
 
 ---
 
