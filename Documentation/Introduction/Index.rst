@@ -30,8 +30,9 @@ There is no constraint on the direction of communication:
 *  A **frontend user** can receive a notification when they place an order.
 *  A **backend user** can be alerted when a content workflow step requires
    their approval.
-*  An **email address** (represented by a class or even a lightweight inline class) can receive
-   a transactional email without any database record.
+*  An **email address**, a support mailbox or a chat room can receive a
+   notification without any class or database record, thanks to
+   **on-demand notifications** (``$dispatcher->route('mail', 'guest@example.com')->notify(...)``).
 *  Any **custom domain model** becomes a notification recipient with a single
    ``use Notifiable;`` declaration.
 
@@ -42,9 +43,9 @@ Built-in delivery channels:
 *  **Database channel** — persists notifications in a database table so they
    can be retrieved and displayed as an in-app notification centre.
 
-Both channels are extensible. Implement ``ChannelInterface`` to add Slack,
-push notifications, SMS, webhooks, or any other transport — the channel is
-**automatically registered** with no configuration required.
+Both channels are extensible. Implement ``ChannelInterface`` and tag the
+class with ``notifications.channel`` (one attribute) to add Slack, push
+notifications, SMS, webhooks, or any other transport.
 
 **The included backend module** (Web > Notifications) is a ready-to-use tool
 for editors who need to compose and send messages to frontend users. It also
@@ -96,7 +97,14 @@ Channel
 
 NotificationDispatcherInterface
    The central dispatcher. Inject it anywhere in your TYPO3 code to send
-   notifications without depending on concrete implementations.
+   notifications without depending on concrete implementations
+   (``send()``, ``sendNow()``, ``channel()``, ``route()``, ``routes()``).
+
+AnonymousNotifiable
+   A notifiable without any model behind it, returned by
+   ``$dispatcher->route()`` / ``$dispatcher->routes()``. It only holds a route
+   (email address, webhook URL, …) per channel. See
+   :ref:`on-demand-notifications`.
 
 ShouldQueue
    A marker interface. When a notification class implements it, dispatching
@@ -116,6 +124,8 @@ Architecture Overview
    │  $user->notify(new OrderConfirmed($order));                  │
    │  // or                                                       │
    │  $dispatcher->send([$userA, $userB], new Announcement());    │
+   │  // or                                                       │
+   │  $dispatcher->route('mail', 'guest@example.com')->notify(…); │
    └─────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
@@ -137,7 +147,7 @@ Architecture Overview
            ▲                  ▲                    ▲
            │       Notifiable recipients            │
    ┌───────┴──────────────────┴────────────────────┴─────────────┐
-   │  FrontendUser · BackendUser · InlineClass · Any domain model │
+   │  FrontendUser · BackendUser · AnonymousNotifiable · Models   │
    └──────────────────────────────────────────────────────────────┘
 
 Notifications flow from *any caller* through the ``NotificationManager``,

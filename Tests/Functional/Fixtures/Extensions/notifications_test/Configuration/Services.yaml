@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Lex\NotificationsTest\:
+        resource: '../Classes/*'
+        exclude: '../Classes/Mail/*'
+
+    # Registration "Option A" from the documentation: explicit tag in Services.yaml
+    Lex\NotificationsTest\Channel\YamlTaggedChannel:
+        public: true
+        tags: ['notifications.channel']

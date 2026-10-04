@@ -1,0 +1,23 @@
+{
+    "name": "lex/notifications-test",
+    "description": "Fixture extension simulating a third-party extension integrating lex_notifications.",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "agencelex/notifications": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lex\\NotificationsTest\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "notifications_test",
+            "version": "1.0.0",
+            "Package": {
+                "providesPackages": {}
+            }
+        }
+    }
+}

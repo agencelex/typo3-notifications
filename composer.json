@@ -37,7 +37,6 @@
     "require": {
         "php": "^8.2",
         "typo3/cms-core": "^13.4 || ^14.3",
-
         "nesbot/carbon": "^3.2",
         "illuminate/collections": "^12.69"
     },
@@ -56,21 +55,26 @@
             "php-http/discovery": true,
             "tbachert/spi": true,
             "typo3/class-alias-loader": true,
-            "typo3/cms-composer-installers": true
+            "typo3/cms-composer-installers": true,
+            "phpstan/extension-installer": true
         }
     },
     "require-dev": {
-        "b13/make": "^0.9 || ^1.0",
-        "typo3/coding-standards": "^0.8",
-        "typo3/testing-framework": "^8.0",
-        "phpunit/phpunit": "^11.0",
-        "saschaegerer/phpstan-typo3": "^1.0",
         "phpstan/extension-installer": "^1.4",
-        "symfony/var-dumper": "^7.0"
+        "phpunit/phpunit": "^11.2 || ^12.1",
+        "saschaegerer/phpstan-typo3": "^1.10 || ^2.0 || ^3.0",
+        "symfony/var-dumper": "^7.0",
+        "typo3/cms-backend": "^13.4 || ^14.3",
+        "typo3/cms-extbase": "^13.4 || ^14.3",
+        "typo3/cms-fluid": "^13.4 || ^14.3",
+        "typo3/cms-frontend": "^13.4 || ^14.3",
+        "typo3/coding-standards": "^0.8 || ^0.9",
+        "typo3/testing-framework": "^8.2 || ^9.0"
     },
     "autoload-dev": {
         "psr-4": {
-            "Lex\\Notifications\\Tests\\": "Tests"
+            "Lex\\Notifications\\Tests\\": "Tests",
+            "Lex\\NotificationsTest\\": "Tests/Functional/Fixtures/Extensions/notifications_test/Classes/"
         }
     },
     "extra": {
@@ -78,7 +82,6 @@
             "app-dir": ".Build",
             "web-dir": ".Build/public",
             "extension-key": "lex_notifications"
-
         }
     },
     "minimum-stability": "dev",

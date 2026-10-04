@@ -1,0 +1,6 @@
+"tx_lexnotifications_domain_model_notification"
+,"uid","pid","crdate","type","notifiable_id","notifiable_type","level","data","read_at","sys_language_uid"
+,1,0,1700000000,"Vendor\Notification\A",1,"Lex\Notifications\Domain\Model\NotifiableFrontendUser",0,"{""subject"":""oldest""}",0,-1
+,2,0,1700000300,"Vendor\Notification\B",1,"Lex\Notifications\Domain\Model\NotifiableFrontendUser",2,"{""subject"":""newest""}",0,-1
+,3,0,1700000100,"Vendor\Notification\A",1,"Lex\Notifications\Domain\Model\NotifiableFrontendUser",1,"{""subject"":""middle""}",1700000200,-1
+,4,5,1700000000,"Vendor\Notification\A",2,"Lex\Notifications\Domain\Model\NotifiableFrontendUser",0,"{""subject"":""other user""}",0,-1

@@ -1,0 +1,6 @@
+"fe_users"
+,"uid","pid","username","email","first_name","last_name","deleted","disable"
+,1,10,"jane","jane.doe@example.com","Jane","Doe",0,0
+,2,20,"john","john.smith@example.com","John","Smith",0,0
+,3,10,"ghost","ghost@example.com","Ghost","User",1,0
+,4,30,"anon","anon@example.com","","",0,0

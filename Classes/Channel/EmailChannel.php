@@ -20,14 +20,13 @@ class EmailChannel implements ChannelInterface, LoggerAwareInterface
 
     public function send(object $notifiable, Notification $notification): void
     {
-        $message = $notification->toMail($notifiable);
+        $recipient = $notifiable->routeNotificationFor(NotificationChannel::CHANNEL_MAIL, $notification);
 
-        if (empty($message->getTo()) && method_exists($notifiable, 'routeNotificationForMail')) {
-            $emailAddress = $notifiable->routeNotificationForMail();
-            $message->to($emailAddress);
+        if(!empty($recipient)) {
+            $message = $notification->toMail($notifiable);
+            $message->to($recipient);
+            $this->mailer->send($message);
         }
-
-        $this->mailer->send($message);
     }
 
     public function getName(): string { return NotificationChannel::CHANNEL_MAIL; }

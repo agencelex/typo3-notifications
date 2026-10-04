@@ -6,6 +6,31 @@
 Changelog
 =========
 
+.. _changelog-unreleased:
+
+Unreleased
+==========
+
+*  **[FEATURE]** On-demand notifications:
+   ``NotificationDispatcherInterface::route()`` and ``routes()`` return a new
+   ``Lex\Notifications\AnonymousNotifiable`` that can be notified without any
+   model or database record. See :ref:`on-demand-notifications`.
+*  **[FEATURE]** ``Notifiable::routeNotificationFor(string $channel, Notification $notification)``
+   resolves the route of a notifiable for any channel by convention
+   (``routeNotificationFor<Channel>()``). The email channel now uses it, so it
+   works for both models and anonymous notifiables.
+*  **[FEATURE]** Unit and functional test suites for TYPO3 13.4 and 14
+   (SQLite by default, DDEV supported). See :ref:`testing`.
+*  **[BREAKING]** ``NotificationDispatcherInterface`` now declares
+   ``channel()``, ``route()`` and ``routes()``. Custom implementations of the
+   interface must add these methods.
+*  **[CHANGE]** ``HasRouteNotificationForMail``: ``getFirstName()`` and
+   ``getLastName()`` are now optional; only ``getEmail()`` is required.
+   ``routeNotificationForMail()`` accepts an optional ``Notification``
+   argument.
+*  **[FIX]** ``HasRouteNotificationForMail`` no longer fails with a fatal
+   error when the class defines ``getLastName()`` but not ``getFirstName()``.
+
 .. _changelog-1-3-0:
 
 1.3.0

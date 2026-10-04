@@ -2,21 +2,22 @@
 
 namespace Lex\Notifications\Domain\Model\Ability;
 
+use Lex\Notifications\Notification;
 use Symfony\Component\Mime\Address;
 
 trait HasRouteNotificationForMail
 {
     abstract public function getEmail(): string;
 
-    abstract public function getFirstName(): ?string;
-
-    abstract public function getLastName(): ?string;
-
-    public function routeNotificationForMail(): Address
+    public function routeNotificationForMail(?Notification $notification = null): Address
     {
+        $firstName = method_exists($this, 'getFirstName') ? $this->getFirstName() : null;
+        $lastName = method_exists($this, 'getLastName') ? $this->getLastName() : null;
+        $name = empty($firstName) && empty($lastName) ? '' : trim(join(' ', array_filter([$firstName, $lastName])));
+
         return new Address(
             $this->getEmail(),
-            trim(join(' ', array_filter([$this->getFirstName(), $this->getLastName()])))
+            $name
         );
     }
 }

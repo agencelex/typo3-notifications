@@ -129,6 +129,7 @@ Two built-in channels are available:
    :Value: ``database``
    :Class: ``Lex\Notifications\Channel\DatabaseChannel``
 
-Custom channels are **automatically registered** by implementing
-``Lex\Notifications\Channel\ChannelInterface`` — no ``Services.yaml`` entry
-needed. See :ref:`custom-channels` for the full pattern.
+Custom channels implement ``Lex\Notifications\Channel\ChannelInterface``
+and are registered with the ``notifications.channel`` service tag — for
+example with ``#[AutoconfigureTag('notifications.channel')]`` on the class.
+See :ref:`custom-channels` for the full pattern.

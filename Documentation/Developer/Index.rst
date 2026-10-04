@@ -43,7 +43,9 @@ Making a Model Notifiable
 
 For **email delivery**, also add ``HasRouteNotificationForMail``. This trait
 provides the ``routeNotificationForMail()`` method, which the email channel
-calls to resolve the recipient's email address:
+calls to resolve the recipient's email address. Only ``getEmail()`` is
+required; ``getFirstName()`` and ``getLastName()`` are optional and, when
+present, are used to build the recipient name (``"John Doe" <john.doe@example.com>``):
 
 .. code-block:: php
 
@@ -56,21 +58,61 @@ calls to resolve the recipient's email address:
        use Notifiable;
        use HasRouteNotificationForMail;
 
-       // // Retrieve from the class properties, database or other source
+       // Required when using HasRouteNotificationForMail
        public function getEmail(): string { return $this->email; }
+
+       // Optional. No need to define them
        public function getFirstName(): ?string { return $this->firstName; }
        public function getLastName(): ?string { return $this->lastName; }
    }
 
-The ``Notifiable`` trait exposes two methods:
+The ``Notifiable`` trait exposes three methods:
 
 .. code-block:: php
 
    // Dispatches via Symfony Messenger if the notification implements ShouldQueue
    $user->notify(new OrderConfirmed($order));
 
-   // Always sends immediately, ignoring ShouldQueue
-   $user->notifyNow(new OrderConfirmed($order), ['mail', 'database']);
+   // Always sends immediately, ignoring ShouldQueue.
+   // The optional second argument overrides the channels returned by via().
+   $user->notifyNow(new OrderConfirmed($order));
+   $user->notifyNow(new OrderConfirmed($order), [NotificationChannel::CHANNEL_DATABASE]);
+
+   // Returns the route (address, webhook URL, …) of the notifiable for a channel.
+   // Used by channels; see "Routing" below.
+   $user->routeNotificationFor(NotificationChannel::CHANNEL_MAIL, $notification);
+
+.. _routing:
+
+Routing
+-------
+
+A channel asks the notifiable *where* to deliver by calling
+``routeNotificationFor(string $channel, Notification $notification)``. The
+``Notifiable`` trait resolves it by convention:
+
+*  ``database`` → ``null`` (the database channel uses the notifiable's UID instead).
+*  any other channel → calls ``routeNotificationFor<Channel>($notification)``
+   if the method exists (e.g. ``routeNotificationForMail()``,
+   ``routeNotificationForSlack()``), otherwise returns ``null``.
+
+.. code-block:: php
+
+   class FrontendUser extends AbstractEntity
+   {
+       use Notifiable;
+       use HasRouteNotificationForMail;
+
+       public function routeNotificationForSlack(?Notification $notification = null): string
+       {
+           return $this->slackWebhookUrl;
+       }
+   }
+
+.. note::
+   The convention relies on ``ucfirst()`` of the channel key, so it only works
+   for channel keys that are valid PHP identifiers (``slack``, ``teams``…).
+   A key such as ``my-channel`` cannot map to a method name.
 
 .. _recipient-examples:
 
@@ -116,7 +158,7 @@ A Scheduler task or service that alerts an admin when a background job fails:
    };
    $admin->notifyNow(new SchedulerJobFailed($taskName, $errorMessage));
 
-**Inline / anonymous notifiable (no database record needed)**
+**Inline notifiable (no database record needed)**
 
 Send a one-off notification to any email address without a domain model:
 
@@ -128,11 +170,21 @@ Send a one-off notification to any email address without a domain model:
 
        public function __construct(protected readonly string $email) {}
        public function getEmail(): string { return $this->email; }
-       public function getFirstName(): ?string { return null; }
-       public function getLastName(): ?string { return null; }
    };
 
    $recipient->notifyNow(new ContactFormReceived($formData));
+
+.. tip::
+   For this kind of one-off recipient, an on-demand notification is even
+   shorter — no class to write:
+
+   .. code-block:: php
+
+      $this->notificationDispatcher
+          ->route(NotificationChannel::CHANNEL_MAIL, 'info@example.com')
+          ->notifyNow(new ContactFormReceived($formData));
+
+   See :ref:`on-demand-notifications`.
 
 **Multiple recipients of different types in one call**
 
@@ -141,7 +193,7 @@ same class:
 
 .. code-block:: php
 
-    $team = [$teamMemberA, $teamMemberB, ...]
+   $team = [$teamMemberA, $teamMemberB, ...];
 
    $this->notificationDispatcher->send(
        $team,
@@ -215,7 +267,9 @@ channel your notification uses:
            return (new MailMessage())
                ->subject('Order #' . $this->order->getNumber() . ' confirmed')
                ->html('<p>Thank you! Your order is being processed.</p>')
-               ->to($notifiable->getEmail());
+               // Optional: when no recipient is set, the email channel uses
+               // $notifiable->routeNotificationFor('mail', $this)
+               ->to($notifiable->routeNotificationForMail($this));
        }
 
        /**
@@ -247,7 +301,12 @@ channel your notification uses:
    }
 
 Only implement the channel methods you actually use. If your notification only
-sends email, there is no need for ``toDatabase()``.
+sends email, there is no need for ``toDatabase()``. Calling a channel whose
+``to…()`` method is missing throws a
+``TYPO3\CMS\Core\Utility\Exception\NotImplementedMethodException``.
+
+By default (when ``via()`` is not overridden), a notification is sent through
+the ``database`` and ``mail`` channels.
 
 .. _queuing-notifications:
 
@@ -285,7 +344,34 @@ Using the Dispatcher Directly
 Inject ``NotificationDispatcherInterface`` into any service, controller, or
 plugin. This is the recommended approach when you do not have a direct
 reference to a notifiable object, or when you need to send to multiple
-recipients:
+recipients. The interface is implemented by ``NotificationManager`` and exposes:
+
+.. t3-field-list-table::
+ :header-rows: 1
+
+ - :Method: Method
+   :Description: Description
+
+ - :Method: ``send($notifiables, $notification)``
+   :Description: Sends to one notifiable or an array of notifiables. Queued
+                 through Symfony Messenger if the notification implements
+                 ``ShouldQueue``.
+
+ - :Method: ``sendNow($notifiables, $notification, ?array $channels = null)``
+   :Description: Sends immediately, ignoring ``ShouldQueue``. ``$channels``
+                 overrides ``via()`` for every notifiable.
+
+ - :Method: ``channel(?string $name = null)``
+   :Description: Returns a channel instance (the ``mail`` channel when no
+                 name is given). Throws ``InvalidArgumentException`` for an
+                 unknown channel.
+
+ - :Method: ``route(string $channel, mixed $route)``
+   :Description: Starts an on-demand notification. See
+                 :ref:`on-demand-notifications`.
+
+ - :Method: ``routes(array $routes)``
+   :Description: Starts an on-demand notification on several channels at once.
 
 .. code-block:: php
 
@@ -332,6 +418,79 @@ You can also target a single specific channel for one call using ``channel()``:
    $this->notificationDispatcher->channel(NotificationChannel::CHANNEL_DATABASE)
        ->send($user, new InvoicePaid($invoice));
 
+.. note::
+   ``channel(...)->send()`` talks to the channel directly: ``via()`` is not
+   called and ``ShouldQueue`` is ignored, so delivery is always immediate.
+
+.. _on-demand-notifications:
+
+On-Demand Notifications
+=======================
+
+Sometimes the recipient is not a model at all: a guest who left an email
+address, a support mailbox, a Teams room. Instead of writing a throwaway
+class, ask the dispatcher for an **anonymous notifiable** and give it a route
+for each channel:
+
+.. code-block:: php
+
+   use Lex\Notifications\NotificationChannel;
+   use Lex\Notifications\NotificationDispatcherInterface;
+   use Symfony\Component\Mime\Address;
+
+   public function __construct(
+       private readonly NotificationDispatcherInterface $notificationDispatcher,
+   ) {}
+
+   // One channel
+   $this->notificationDispatcher
+       ->route(NotificationChannel::CHANNEL_MAIL, 'guest@example.com')
+       ->notify(new OrderReceiptEmail($order));
+
+   // Several channels: chain route() calls
+   $this->notificationDispatcher
+       ->route(NotificationChannel::CHANNEL_MAIL, new Address('support@example.com', 'Support'))
+       ->route('slack', '#orders')
+       ->notify(new OrderReceived($order));
+
+   // Several channels at once: routes()
+   $this->notificationDispatcher
+       ->routes([
+           NotificationChannel::CHANNEL_MAIL => 'support@example.com',
+           'slack' => '#orders',
+       ])
+       ->notifyNow(new OrderReceived($order));
+
+``route()`` and ``routes()`` return a ``Lex\Notifications\AnonymousNotifiable``.
+It uses the ``Notifiable`` trait, so ``notify()`` (queued if ``ShouldQueue``)
+and ``notifyNow()`` (immediate) work as usual, and so does
+``$this->notificationDispatcher->send($anonymous, ...)``.
+
+Things to know:
+
+*  **The route is whatever the channel expects.** For ``mail``, it can be a
+   string or a ``Symfony\Component\Mime\Address``. For a custom channel, it
+   can be any value (webhook URL, room ID, phone number…).
+*  **via() still decides.** Only the channels returned by the notification's
+   ``via()`` are used. A routed channel that ``via()`` doesn't return is
+   ignored.
+*  **The database channel is not supported.** An anonymous recipient has no
+   UID to store, so routing to ``database`` throws an
+   ``InvalidArgumentException``.
+*  **Validation:** ``route()`` on the dispatcher checks that the channel is
+   registered and throws an ``InvalidArgumentException`` if it isn't.
+   ``routes()`` and any chained ``->route()`` calls don't check; an unknown
+   channel only fails when the notification is sent.
+*  **Queued on-demand notifications** go through Symfony Messenger like any
+   other. With an asynchronous transport, routes must be serializable
+   (strings, ``Address`` objects…).
+
+Custom channels should read the route with
+``$notifiable->routeNotificationFor('<channel>', $notification)``. That works
+for both anonymous notifiables and models: on a model, the ``Notifiable``
+trait forwards the call to ``routeNotificationFor<Channel>()`` (see
+:ref:`routing`).
+
 .. _practical-use-cases:
 
 Practical Use Cases
@@ -342,18 +501,9 @@ Practical Use Cases
 .. code-block:: php
 
    // In a DataHandler hook or custom service
-   $responsible = new class('editor@example.com') {
-       use \Lex\Notifications\Domain\Model\Ability\Notifiable;
-       use \Lex\Notifications\Domain\Model\Ability\HasRouteNotificationForMail;
-       public function __construct(protected readonly string $email) {}
-       public function getEmail(): string { return $this->email; }
-       public function getFirstName(): ?string { return null; }
-       public function getLastName(): ?string { return null; }
-   };
-   $this->notifications->sendNow(
-       $responsible,
-       new ContentPendingReview($pageUid, $submitter),
-   );
+   $this->notifications
+       ->route(NotificationChannel::CHANNEL_MAIL, 'editor@example.com')
+       ->notifyNow(new ContentPendingReview($pageUid, $submitter));
 
 **Frontend user triggers a notification to another frontend user**
 
@@ -386,13 +536,31 @@ Practical Use Cases
 
 .. code-block:: php
 
+   // On-demand: no class needed
+   $this->notifications
+       ->route(NotificationChannel::CHANNEL_MAIL, 'customer@example.com')
+       ->notifyNow(new OrderReceiptEmail($order));
+
+   // Or with an inline class, if you need more than an address
    $contact = new class('customer@example.com') {
        use \Lex\Notifications\Domain\Model\Ability\Notifiable;
        use \Lex\Notifications\Domain\Model\Ability\HasRouteNotificationForMail;
        public function __construct(protected readonly string $email) {}
+       public function getEmail(): string { return $this->email; }
    };
 
    $contact->notifyNow(new OrderReceiptEmail($order));
+
+**Alerting a support mailbox and a Teams room at once**
+
+.. code-block:: php
+
+   $this->notifications
+       ->routes([
+           NotificationChannel::CHANNEL_MAIL => new Address('support@example.com', 'Support'),
+           'teams' => 'https://example.webhook.office.com/…',
+       ])
+       ->notify(new PaymentFailed($order));
 
 .. _reading-database-notifications:
 
@@ -530,7 +698,11 @@ Adding Custom Channels
        public function send(object $notifiable, Notification $notification): void
        {
            $payload = $notification->toSlack($notifiable);
-           $this->slack->post($notifiable->getSlackWebhookUrl(), $payload);
+
+           // Works for models (routeNotificationForSlack()) and on-demand recipients
+           $webhookUrl = $notifiable->routeNotificationFor('slack', $notification);
+
+           $this->slack->post($webhookUrl, $payload);
        }
    }
 
@@ -564,6 +736,9 @@ Channel key lookup order:
 2. Fully-qualified class name — as a fallback.
 
 To ensure a custom channel is properly detected and registered into the manager's iterator, you must assign the ``notifications.channel`` tag to your class.
+Implementing ``ChannelInterface`` alone is not enough in a third-party
+extension: Symfony's ``_instanceof`` rules only apply to the services of the
+file that declares them.
 
 You can achieve this in **one of three ways**:
 

@@ -14,7 +14,7 @@
                typo3-core-preferred="13.4"
                extension-key="lex_notifications"
                min-typo3-version="13.4"
-               max-typo3-version="13.4"
+               max-typo3-version="14.3"
     />
 
     <project title="Laravel-style notification system for TYPO3" release="main (development)" version="main (development)"

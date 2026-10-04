@@ -56,10 +56,12 @@ class FrontendUser extends AbstractEntity
     use Notifiable;
     use HasRouteNotificationForMail; // Needed for email delivery, remove if not needed
 
-    // When using HasRouteNotificationForMail
+    // Required when using HasRouteNotificationForMail
     public function getEmail(): string { return 'john.doe@example.com'; }
-    public function getFirstName(): ?string { return null; }
-    public function getLastName(): ?string { return null; }
+    
+    // Optional. No need to define them
+    public function getFirstName(): ?string { return 'John'; }
+    public function getLastName(): ?string { return 'Doe'; }
 }
 ```
 
@@ -84,7 +86,10 @@ final class OrderConfirmed extends Notification
     // Specify delivery channels
     public function via(object $notifiable): array
     {
-        return [NotificationChannel::CHANNEL_MAIL, NotificationChannel::CHANNEL_DATABASE];
+        return [
+          NotificationChannel::CHANNEL_MAIL, // Because of this, toMail is required
+          NotificationChannel::CHANNEL_DATABASE // Because of this, toDatabase is required
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -92,7 +97,7 @@ final class OrderConfirmed extends Notification
         return (new MailMessage())
             ->subject('Order #' . $this->order->getNumber() . ' confirmed')
             ->html('<p>Thank you! Your order is being processed.</p>')
-            ->to($notifiable->getEmail());
+            ->to($notifiable->routeNotificationForMail($this));
     }
 
     public function toDatabase(object $notifiable): array
@@ -120,8 +125,11 @@ $this->notificationDispatcher->sendNow($user, new OrderConfirmed($order));
 // Multiple recipients
 $this->notificationDispatcher->send([$userA, $userB], new Announcement());
 
-// To a specific channel
+// To a specific channel, via() is ignored
 $this->notificationDispatcher->channel(NotificationChannel::CHANNEL_DATABASE)->send($user, new InvoicePaid($invoice));
+
+// To someone who is not a model (see "On-Demand Notifications")
+$this->notificationManager->route(NotificationChannel::CHANNEL_MAIL, 'guest@example.com')->notify(new OrderReceiptEmail($order));
 ```
 
 ---
@@ -137,7 +145,15 @@ $recipients = $this->notifiableFrontendUserRepository->findByUids($recipientUids
 $this->notificationDispatcher->send($recipients, new ContentSharedWithYou($page, $sender));
 
 // Extension → backend user (plain class, no DB record needed)
-$admin = new class($backendEmail, $backendRealName) {
+$adminA = new class ($backendEmailA) {
+    use Notifiable;
+    use HasRouteNotificationForMail;
+    public function __construct(protected readonly string $email) {}
+    public function getEmail(): string { return $this->email; }
+}
+$adminA->notifyNow(new MaliciousAttempt($collectedData));
+
+$adminB = new class($backendEmailB, $backendRealName) {
     use Notifiable;
     use HasRouteNotificationForMail;
 
@@ -153,7 +169,7 @@ $admin = new class($backendEmail, $backendRealName) {
     public function getFirstName(): ?string { return $this->firstName ; }
     public function getLastName(): ?string { return $this->lastName; }
 };
-$admin->notifyNow(new SchedulerJobFailed($error));
+$adminB->notifyN(new SchedulerJobFailed($error));
 
 // Any code → inline email recipient
 $contact = new class($data) {
@@ -162,6 +178,70 @@ $contact = new class($data) {
 };
 $contact->notifyNow(new OrderReceiptEmail($order));
 ```
+
+---
+
+## On-Demand Notifications
+
+Sometimes the recipient is not a model at all: a guest who left an email
+address, a support mailbox, a Teams room. Instead of writing a throwaway
+class, ask the `NotificationManager` for an **anonymous notifiable** and give
+it a route for each channel:
+
+```php
+use Lex\Notifications\NotificationChannel;
+use Lex\Notifications\NotificationDispatcherInterface;
+use Symfony\Component\Mime\Address;
+
+public function __construct(private readonly NotificationDispatcherInterface $notificationDispatcher) {}
+
+// One channel
+$this->notificationDispatcher
+    ->route(NotificationChannel::CHANNEL_MAIL, 'guest@example.com')
+    ->notify(new OrderReceiptEmail($order));
+
+// Several channels: chain route() calls
+$this->notificationDispatcher
+    ->route(NotificationChannel::CHANNEL_MAIL, new Address('support@example.com', 'Support'))
+    ->route('slack', '#orders')
+    ->notify(new OrderReceived($order));
+
+// Several channels at once: routes()
+$this->notificationDispatcher
+    ->routes([
+        NotificationChannel::CHANNEL_MAIL => 'support@example.com',
+        'slack' => '#orders',
+    ])
+    ->notifyNow(new OrderReceived($order));
+```
+
+`route()` and `routes()` return a `Lex\Notifications\AnonymousNotifiable`.
+It uses the `Notifiable` trait, so `notify()` (queued if `ShouldQueue`) and
+`notifyNow()` (immediate) work as usual, and so does
+`$this->notificationDispatcher->send($anonymous, ...)`.
+
+Things to know:
+
+- **The route is whatever the channel expects.** For `mail`, it can be a
+  string or a `Symfony\Component\Mime\Address`. For a custom channel, it can
+  be any value (webhook URL, room ID, phone number…).
+- **`via()` still decides.** Only the channels returned by the notification's
+  `via()` are used. A routed channel that `via()` doesn't return is ignored.
+- **The `database` channel is not supported.** An anonymous recipient has no
+  UID to store, so routing to `database` throws an `InvalidArgumentException`.
+- **Validation:** `route()` checks that the channel is
+  registered and throws an `InvalidArgumentException` if it isn't.
+  `routes()` and any chained `->route()` calls don't check; an unknown channel
+  only fails when the notification is sent.
+- **Queued on-demand notifications** go through Symfony Messenger like any
+  other. With an asynchronous transport, routes must be serializable (strings,
+  `Address` objects…).
+
+Custom channels should read the route with
+`$notifiable->routeNotificationFor('<channel>', $notification)`. That works for
+both anonymous notifiables and models: on a model, the `Notifiable` trait
+forwards the call to `routeNotificationFor<Channel>()` (e.g.
+`routeNotificationForSlack()`).
 
 ---
 
@@ -199,7 +279,8 @@ final class SlackChannel implements ChannelInterface
     public function send(object $notifiable, Notification $notification): void
     {
         $this->slack->post(
-            $notifiable->routeNotificationForSlack(),
+            // Works for models (routeNotificationForSlack()) and on-demand recipients
+            $notifiable->routeNotificationFor('slack', $notification),
             $notification->toSlack($notifiable)
         );
     }
@@ -332,10 +413,87 @@ composer run cgl
 
 # Static analysis
 composer run phpstan
-
-# Tests
-composer run test
 ```
+
+---
+
+## Running the Tests
+
+The extension ships two test suites:
+
+| Suite | Location | What it covers |
+|---|---|---|
+| Unit | `Tests/Unit/` | Manager, channels, traits, models, queue handler. No TYPO3 instance. |
+| Functional | `Tests/Functional/` | A real TYPO3 instance: DI wiring, email delivery, database storage, queue handler, repositories, custom channels registered by another extension, and every public way of sending a notification. |
+
+The functional tests load a fixture extension
+(`Tests/Functional/Fixtures/Extensions/notifications_test`). It plays the role
+of a third-party integrator: it registers custom channels and captures sent
+emails in memory, so no mail is ever sent. By default they use **SQLite**, so
+no database server is needed.
+
+### Without DDEV
+
+Requires PHP 8.2+ (with `pdo_sqlite`) and Composer, run from the extension
+directory:
+
+```bash
+composer install
+
+# Unit tests
+.Build/bin/phpunit -c Build/phpunit-unit.xml
+# or: composer test:php:unit
+
+# Functional tests
+.Build/bin/phpunit -c Build/phpunit-functional.xml
+# or: composer test:php:functional
+```
+
+> Composer cannot install the dependencies on an **exFAT** volume (plugin
+> installation fails). Use an APFS/ext4 disk, or DDEV.
+
+### With DDEV
+
+The extension directory contains a DDEV configuration:
+
+```bash
+ddev start
+ddev composer install
+
+# Unit tests
+ddev exec .Build/bin/phpunit -c Build/phpunit-unit.xml
+
+# Functional tests on SQLite
+ddev exec .Build/bin/phpunit -c Build/phpunit-functional.xml
+
+# Functional tests on the DDEV MySQL server
+ddev exec typo3DatabaseDriver=mysqli typo3DatabaseHost=db \
+    typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test \
+    .Build/bin/phpunit -c Build/phpunit-functional.xml
+```
+
+The functional tests create one database per test class (prefixed with
+`typo3DatabaseName`), so the database user needs `CREATE DATABASE`
+privileges. That's why the example uses `root`.
+
+### Useful options
+
+```bash
+# Run a single test class or method
+.Build/bin/phpunit -c Build/phpunit-functional.xml --filter PublicApiTest
+.Build/bin/phpunit -c Build/phpunit-unit.xml --filter sendNowBypassesTheMessageBus
+
+# Show deprecations (useful when preparing the next TYPO3 major)
+.Build/bin/phpunit -c Build/phpunit-functional.xml --display-deprecations
+
+# Test against a specific TYPO3 version
+composer update -W --with "typo3/cms-core:^13.4"
+composer update -W --with "typo3/cms-core:^14.3"
+```
+
+Any other database can be used through the `typo3DatabaseDriver`,
+`typo3DatabaseHost`, `typo3DatabasePort`, `typo3DatabaseUsername`,
+`typo3DatabasePassword` and `typo3DatabaseName` environment variables.
 
 ---
 

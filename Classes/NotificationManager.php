@@ -54,15 +54,6 @@ class NotificationManager implements NotificationDispatcherInterface
         ))->sendNow($notifiables, $notification, $channels);
     }
 
-    /**
-     * Get the notification channel instance based on the provided name.
-     * If name is null or not supplied, an instance of the default channel is returned.
-     *
-     * @param string|null $name The name or the class name of the notification channel.
-     * @return ChannelInterface The channel instance corresponding to the given name and to the default channel.
-     *
-     * @throws InvalidArgumentException If the provided channel name is not supported.
-     */
     public function channel(?string $name = null): ChannelInterface
     {
         if($name) {
@@ -70,5 +61,23 @@ class NotificationManager implements NotificationDispatcherInterface
         }
 
         return $this->channels[$this->defaultChannel];
+    }
+
+    public function route(string $channel, mixed $route): AnonymousNotifiable
+    {
+        $this->channel($channel); // This will throw an InvalidArgumentException if the channel is not supported
+
+        return (new AnonymousNotifiable)->route($channel, $route);
+    }
+
+    public function routes(array $channels): AnonymousNotifiable
+    {
+        $notifiable = new AnonymousNotifiable;
+
+        foreach($channels as $channel => $route) {
+            $notifiable->route($channel, $route);
+        }
+
+        return $notifiable;
     }
 }

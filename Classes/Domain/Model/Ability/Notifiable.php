@@ -3,6 +3,7 @@
 namespace Lex\Notifications\Domain\Model\Ability;
 
 use Lex\Notifications\Notification;
+use Lex\Notifications\NotificationChannel;
 use Lex\Notifications\NotificationDispatcherInterface as Dispatcher;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -18,5 +19,16 @@ trait Notifiable
     {
         GeneralUtility::makeInstance(Dispatcher::class)
             ->sendNow($this, $notification, $channels);
+    }
+
+    public function routeNotificationFor(string $channel, Notification $notification): mixed {
+
+        return match ($channel) {
+            NotificationChannel::CHANNEL_DATABASE => null, // Database notification has no route
+            default => (function() use($channel, $notification) {
+                $method = 'routeNotificationFor' . ucfirst($channel); // Example: routeNotificationForMail
+                return method_exists($this, $method) ? $this->{$method}($notification) : null;
+            })(),
+        };
     }
 }

@@ -19,7 +19,7 @@ Laravel-style Notification System for TYPO3
    en
 
 :Author:
-   Agence Lex
+   `Agence Lex`_
 
 :License:
    This document is published under the `Creative Commons BY 4.0`_ license.
@@ -27,6 +27,7 @@ Laravel-style Notification System for TYPO3
 :Rendered:
    |today|
 
+.. _Agence Lex: https://www.agencelex.com/
 .. _Creative Commons BY 4.0: https://creativecommons.org/licenses/by/4.0/
 
 ----
@@ -55,4 +56,5 @@ notifications.
    Configuration/Index
    Usage/Index
    Developer/Index
+   Testing/Index
    Changelog/Index
