@@ -42,8 +42,9 @@ Making a Model Notifiable
 =========================
 
 For **email delivery**, also add ``HasRouteNotificationForMail``. This trait
-provides the ``routeNotificationForMail()`` method, which the email channel
-calls to resolve the recipient's email address. Only ``getEmail()`` is
+provides the required ``routeNotificationForMail()`` method, which the email
+channel calls to resolve the recipient's email address (remove it if the model
+never receives emails). Only ``getEmail()`` is
 required; ``getFirstName()`` and ``getLastName()`` are optional and, when
 present, are used to build the recipient name (``"John Doe" <john.doe@example.com>``):
 
@@ -91,10 +92,19 @@ A channel asks the notifiable *where* to deliver by calling
 ``routeNotificationFor(string $channel, Notification $notification)``. The
 ``Notifiable`` trait resolves it by convention:
 
-*  ``database`` → ``null`` (the database channel uses the notifiable's UID instead).
+*  ``database`` → ``true`` (there is no route: the database channel uses the
+   notifiable's UID instead).
 *  any other channel → calls ``routeNotificationFor<Channel>($notification)``
    if the method exists (e.g. ``routeNotificationForMail()``,
    ``routeNotificationForSlack()``), otherwise returns ``null``.
+
+**A channel without a route is skipped.** Before delivering, the sender asks
+each notifiable for its route on every channel returned by ``via()``. When the
+route is empty (``null``, ``''``, ``false``…), that channel is silently skipped
+for that notifiable; the other channels and recipients are still delivered.
+So every notifiable that may receive a notification through a channel must
+implement the matching ``routeNotificationFor<Channel>()`` method (or use a
+trait such as ``HasRouteNotificationForMail``).
 
 .. code-block:: php
 
@@ -109,10 +119,26 @@ A channel asks the notifiable *where* to deliver by calling
        }
    }
 
-.. note::
-   The convention relies on ``ucfirst()`` of the channel key, so it only works
-   for channel keys that are valid PHP identifiers (``slack``, ``teams``…).
-   A key such as ``my-channel`` cannot map to a method name.
+The method name is built by converting the channel key to UpperCamelCase,
+with ``-``, ``_`` and spaces treated as word separators:
+
+.. t3-field-list-table::
+ :header-rows: 1
+
+ - :Key: Channel key
+   :Method: Route method
+
+ - :Key: ``mail``
+   :Method: ``routeNotificationForMail()``
+
+ - :Key: ``slack``
+   :Method: ``routeNotificationForSlack()``
+
+ - :Key: ``my-channel`` / ``my_channel``
+   :Method: ``routeNotificationForMyChannel()``
+
+ - :Key: ``SlackChannel`` (short class name)
+   :Method: ``routeNotificationForSlackChannel()``
 
 .. _recipient-examples:
 
@@ -299,6 +325,9 @@ channel your notification uses:
                ->...;
        }
    }
+
+Each channel returned by ``via()`` must also have a route on the notifiable
+(see :ref:`routing`), otherwise it is skipped for that notifiable.
 
 Only implement the channel methods you actually use. If your notification only
 sends email, there is no need for ``toDatabase()``. Calling a channel whose
@@ -688,7 +717,7 @@ Adding Custom Channels
 
        /**
         * Optional. Provides a short string key used in via().
-        * When omitted, the fully-qualified class name is used as the key.
+        * When omitted, the short class name (SlackChannel) is used as the key.
         */
        public function getName(): string
        {
@@ -716,15 +745,33 @@ Adding Custom Channels
    }
 
 The ``NotificationManager`` resolves the channel by its key at send time.
-If ``getName()`` is not defined, use the fully-qualified class name as the
-key in ``via()``:
+If ``getName()`` is not defined, use the short class name (without namespace)
+as the key in ``via()``:
 
 .. code-block:: php
 
    public function via(object $notifiable): array
    {
-       return [MyVendor\MyExtension\Notification\Channel\SlackChannel::class];
+       return ['SlackChannel'];
    }
+
+**Step 3 — implement the route in each notifiable**
+
+Every notifiable that may be notified through the channel must tell where to
+deliver, with a ``routeNotificationFor<Channel>()`` method (see :ref:`routing`):
+
+.. code-block:: php
+
+   use Lex\Notifications\Notification;
+
+   public function routeNotificationForSlack(?Notification $notification = null): string
+   {
+       return 'https://hooks.slack.com/services/your/slack/webhook';
+   }
+
+If this route is missing (or empty), the channel is skipped when the
+notification is sent to that notifiable. On-demand recipients get their route
+from ``route()`` / ``routes()`` instead (see :ref:`on-demand-notifications`).
 
 .. note::
    Dependency injection works normally. Declare constructor arguments as
@@ -733,7 +780,12 @@ key in ``via()``:
 Channel key lookup order:
 
 1. ``getName()`` — if the method exists on the channel class.
-2. Fully-qualified class name — as a fallback.
+2. Short class name (e.g. ``SlackChannel``) — as a fallback.
+
+.. note::
+   Two channels without ``getName()`` sharing the same short class name in
+   different namespaces would get the same key; the last one registered wins.
+   Define ``getName()`` to avoid the collision.
 
 To ensure a custom channel is properly detected and registered into the manager's iterator, you must assign the ``notifications.channel`` tag to your class.
 Implementing ``ChannelInterface`` alone is not enough in a third-party

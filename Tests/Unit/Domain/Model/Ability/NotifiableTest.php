@@ -56,9 +56,9 @@ final class NotifiableTest extends UnitTestCase
     }
 
     #[Test]
-    public function databaseChannelHasNoRoute(): void
+    public function routeForDatabaseChannelReturnsTrue(): void
     {
-        self::assertNull((new NotifiableUser())->routeNotificationFor(NotificationChannel::CHANNEL_DATABASE, new TestNotification()));
+        self::assertTrue((new NotifiableUser())->routeNotificationFor(NotificationChannel::CHANNEL_DATABASE, new TestNotification()));
     }
 
     #[Test]

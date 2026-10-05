@@ -33,7 +33,7 @@ final class QueuedNotificationTest extends AbstractNotificationsFunctionalTestCa
     public function queuedNotificationReachesEveryNotifiableAndChannel(): void
     {
         $this->get(NotificationDispatcherInterface::class)->send(
-            [new NotifiableUser(uid: 1), new NotifiableUser(uid: 2)],
+            [new NotifiableUser(uid: 1, slackWebhook: 'https://webhook.slack.com/user1'), new NotifiableUser(uid: 2, slackWebhook: 'https://webhook.slack.com/user2')],
             new QueuedTestNotification([NotificationChannel::CHANNEL_DATABASE, AttributeTaggedChannel::NAME])
         );
 

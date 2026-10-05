@@ -33,7 +33,7 @@ hooks:
     - exec-host: ddev mutagen reset
   post-start:
     - exec: pwd
-    - exec: test -f .Build/public/FIRST_INSTALL && (composer install && chmod +x -R .Build/bin && typo3 setup --no-interaction && typo3 extension:setup && rm -vf .Build/public/FIRST_INSTALL) || echo 'TYPO3 already installed'
+    - exec: test -f .Build/public/FIRST_INSTALL && (composer install && chmod +x -R .Build/bin && typo3 setup --no-interaction && typo3 extension:setup && rm -vf .Build/public/FIRST_INSTALL) || echo 'TYPO3 installation skipped (maybe already installed)'
     - exec: chmod +x -R .Build/bin
     - exec-host: ddev status
 

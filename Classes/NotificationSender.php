@@ -40,7 +40,9 @@ readonly class NotificationSender
 
             if (!empty($viaChannels)) {
                 foreach ($viaChannels as $channel) {
-                    $this->sendToNotifiable($notifiable, clone $original, $channel);
+                    if($notifiable->routeNotificationFor($channel, clone $original)) {
+                        $this->sendToNotifiable($notifiable, clone $original, $channel);
+                    }
                 }
             }
         }

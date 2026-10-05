@@ -66,14 +66,14 @@ final class ServiceRegistrationTest extends AbstractNotificationsFunctionalTestC
     }
 
     #[Test]
-    public function thirdPartyChannelTaggedInServicesYamlIsRegisteredByClassName(): void
+    public function thirdPartyChannelTaggedInServicesYamlIsRegisteredByShortClassName(): void
     {
         /** @var NotificationManager $manager */
         $manager = $this->get(NotificationDispatcherInterface::class);
 
         self::assertSame(
             $this->get(YamlTaggedChannel::class),
-            $manager->channel(YamlTaggedChannel::class)
+            $manager->channel(basename(str_replace('\\', '/', YamlTaggedChannel::class)))
         );
     }
 }

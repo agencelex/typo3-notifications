@@ -26,9 +26,10 @@ final class HasRouteNotificationForMailTest extends UnitTestCase
     #[DataProvider('namesDataProvider')]
     public function addressNameIsBuiltFromFirstAndLastName(?string $firstName, ?string $lastName, string $expected): void
     {
-        $address = (new NotifiableUser(1, 'jane@example.com', $firstName, $lastName))->routeNotificationForMail();
+        $expectedEmail = 'julia@example.com';
+        $address = (new NotifiableUser(1, $expectedEmail, $firstName, $lastName))->routeNotificationForMail();
 
-        self::assertSame('jane@example.com', $address->getAddress());
+        self::assertSame($expectedEmail, $address->getAddress());
         self::assertSame($expected, $address->getName());
     }
 

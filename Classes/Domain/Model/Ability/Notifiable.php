@@ -21,12 +21,12 @@ trait Notifiable
             ->sendNow($this, $notification, $channels);
     }
 
-    public function routeNotificationFor(string $channel, Notification $notification): mixed {
-
+    public function routeNotificationFor(string $channel, Notification $notification): mixed
+    {
         return match ($channel) {
-            NotificationChannel::CHANNEL_DATABASE => null, // Database notification has no route
+            NotificationChannel::CHANNEL_DATABASE => true, // Database notification has no route, let go
             default => (function() use($channel, $notification) {
-                $method = 'routeNotificationFor' . ucfirst($channel); // Example: routeNotificationForMail
+                $method = 'routeNotificationFor' . GeneralUtility::underscoredToUpperCamelCase(str_replace(['-', ' '], '_', $channel)); // Example: routeNotificationForMail or routeNotificationForMyCustomChannel
                 return method_exists($this, $method) ? $this->{$method}($notification) : null;
             })(),
         };

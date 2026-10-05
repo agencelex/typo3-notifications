@@ -2,6 +2,7 @@
 
 namespace Lex\Notifications\Tests\Functional\Channel;
 
+use Lex\Notifications\Domain\Model\Ability\Notifiable;
 use Lex\Notifications\NotificationDispatcherInterface;
 use Lex\Notifications\NotificationManager;
 use Lex\Notifications\Tests\Functional\AbstractNotificationsFunctionalTestCase;
@@ -20,7 +21,10 @@ final class CustomChannelTest extends AbstractNotificationsFunctionalTestCase
     #[Test]
     public function notificationIsDeliveredToAChannelRegisteredByAnotherExtension(): void
     {
-        $user = new NotifiableUser();
+        $user = new class () {
+            use Notifiable;
+            public function routeNotificationForAttributeTagged(): bool { return true; }
+        };
 
         $user->notifyNow(new TestNotification([AttributeTaggedChannel::NAME]));
 
@@ -32,9 +36,13 @@ final class CustomChannelTest extends AbstractNotificationsFunctionalTestCase
     }
 
     #[Test]
-    public function channelClassNameCanBeUsedInVia(): void
+    public function channelClassShortNameCanBeUsedInVia(): void
     {
-        (new NotifiableUser())->notifyNow(new TestNotification([YamlTaggedChannel::class]));
+        $channelName = basename(str_replace('\\', '/', YamlTaggedChannel::class));
+        (new class () {
+            use Notifiable;
+            public function routeNotificationForYamlTaggedChannel(): bool { return true; }
+        })->notifyNow(new TestNotification([$channelName]));
 
         self::assertCount(1, $this->get(YamlTaggedChannel::class)->sent);
     }

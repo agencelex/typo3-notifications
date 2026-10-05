@@ -5,6 +5,7 @@ namespace Lex\Notifications\Tests\Unit;
 use InvalidArgumentException;
 use Lex\Notifications\AnonymousNotifiable;
 use Lex\Notifications\Channel\ChannelInterface;
+use Lex\Notifications\Domain\Model\Ability\Notifiable;
 use Lex\Notifications\NotificationChannel;
 use Lex\Notifications\NotificationDispatcherInterface;
 use Lex\Notifications\NotificationManager;
@@ -63,12 +64,13 @@ final class NotificationManagerTest extends UnitTestCase
     }
 
     #[Test]
-    public function channelsWithoutGetNameAreResolvedByClassName(): void
+    public function channelsWithoutGetNameAreResolvedByClassShortName(): void
     {
         $unnamed = new UnnamedChannel();
+        $classShortName = basename(str_replace('\\', '/', $unnamed::class));
         $manager = $this->createManager([$this->mailChannel, $unnamed]);
 
-        self::assertSame($unnamed, $manager->channel(UnnamedChannel::class));
+        self::assertSame($unnamed, $manager->channel($classShortName));
     }
 
     #[Test]
@@ -205,11 +207,18 @@ final class NotificationManagerTest extends UnitTestCase
     }
 
     #[Test]
-    public function sendNowWithUnknownChannelThrowsException(): void
+    public function sendNowToNotifiableThatHasNoRouteForItIsIgnored(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $unsupportedChannelName = 'carrier-pigeon';
+        $channel = new RecordingChannel($unsupportedChannelName);
 
-        $this->createManager()->sendNow(new NotifiableUser(), new TestNotification(['carrier-pigeon']));
+        $this->createManager()->sendNow(new class
+        {
+            use Notifiable;
+            // No function routeNotificationForCarrierPigeon so channel not supported
+        }, new TestNotification([$channel->getName()]));
+
+        self::assertCount(0, $channel->sent);
     }
 
     #[Test]
@@ -375,7 +384,13 @@ final class NotificationManagerTest extends UnitTestCase
             }
         };
 
-        $this->createManager([$channel])->sendNow(new NotifiableUser(), new TestNotification(['custom']));
+        $notifiable = new class
+        {
+            use Notifiable;
+            public function routeNotificationForCustom(): bool { return true; }
+        };
+
+        $this->createManager([$channel])->sendNow($notifiable, new TestNotification([$channel->getName()]));
 
         self::assertSame(1, $channel->calls);
     }

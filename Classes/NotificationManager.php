@@ -30,7 +30,7 @@ class NotificationManager implements NotificationDispatcherInterface
     {
         foreach($channels as $channel) {
             if($channel instanceof ChannelInterface) {
-                $name = method_exists($channel, 'getName')? $channel->getName() : get_class($channel);
+                $name = method_exists($channel, 'getName')? $channel->getName() : basename(str_replace('\\', '/', $channel::class));
                 $this->channels[$name] = $channel;
             }
         }

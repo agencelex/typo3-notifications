@@ -9,18 +9,20 @@ User-facing docs: `README.md` and `Documentation/` (RST). Keep both in sync when
 - `NotificationDispatcherInterface` (public service, aliased to `NotificationManager`):
   `send()`, `sendNow(..., ?array $channels)`, `channel(?string)`, `route()`, `routes()`.
 - `NotificationManager`: gets channels via `#[AutowireIterator('notifications.channel')]`, keyed by
-  `getName()` if present, else the FQCN. The default channel is `mail`. `route()` validates that the channel exists;
+  `getName()` if present, else the short class name. The default channel is `mail`. `route()` validates that the channel exists;
   `routes()` does not. Delegates to `NotificationSender`.
 - `NotificationSender` (readonly): `send()` → if `ShouldQueue` (Illuminate contract), dispatches
   `Queue\Message\NotificationQueued` on the Symfony Messenger bus; else `sendNow()`. `sendNow()` iterates
-  notifiables × channels (`$channels ?: via()`), giving each channel a *clone* of the notification.
+  notifiables × channels (`$channels ?: via()`), giving each channel a *clone* of the notification;
+  a channel is skipped when `$notifiable->routeNotificationFor($channel, $n)` is falsy.
 - `Queue\Handler\SendQueuedNotificationNow`: messenger handler (tag in Services.yaml) → `sendNow()`.
   TYPO3's default messenger routing is sync, so queued notifications are delivered in-request unless an async transport is configured.
 - `Notification` (abstract): `via()` defaults to `[database, mail]`; `toMail()`/`toDatabase()` throw
   `NotImplementedMethodException`; `getType()` = static::class; `$level` (NotificationLevel, RFC 5424 0–6).
 - `Domain\Model\Ability\Notifiable` trait: `notify()`/`notifyNow()` resolve the dispatcher via
   `GeneralUtility::makeInstance(NotificationDispatcherInterface::class)`; `routeNotificationFor($channel, $n)`:
-  `database` → null, otherwise calls `routeNotificationFor<Ucfirst channel>($n)` if it exists.
+  `database` → true, otherwise calls `routeNotificationFor<UpperCamelCase channel>($n)` if it exists
+  (`-`/`_`/space are separators: `my-channel` → `routeNotificationForMyChannel`).
 - `HasRouteNotificationForMail` trait: requires `getEmail()`; `getFirstName()`/`getLastName()` are optional → Symfony `Address`.
 - `AnonymousNotifiable`: on-demand recipient (routes per channel); rejects `database` with `InvalidArgumentException`.
 - Channels (`Channel\`): `EmailChannel` (`mail`; sets To from `routeNotificationFor('mail')` if the MailMessage has none),
@@ -36,7 +38,6 @@ User-facing docs: `README.md` and `Documentation/` (RST). Keep both in sync when
 
 - Custom channels in *other* extensions must be tagged `notifications.channel` (attribute `#[AutoconfigureTag]` or
   Services.yaml). The `_instanceof` rule in this extension's Services.yaml only applies to its own services.
-- Channel keys with `-` can't use the `routeNotificationFor<Channel>()` convention.
 - Adding methods to `NotificationDispatcherInterface` is a breaking change (record it in `Documentation/Changelog`).
 - `composer install` FAILS on exFAT volumes (the original checkout lives on an exFAT drive): plugin init error. Install on APFS/ext4,
   in DDEV, or in a mirror (`rsync -a --exclude .Build --exclude '._*' ./ /tmp/x/`). exFAT `._*` files also break

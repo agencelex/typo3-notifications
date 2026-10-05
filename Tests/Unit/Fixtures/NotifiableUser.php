@@ -46,4 +46,6 @@ final class NotifiableUser
     {
         return $this->slackWebhook;
     }
+
+    public function routeNotificationForAttributeTagged(): bool { return true; }
 }

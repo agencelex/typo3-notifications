@@ -54,7 +54,7 @@ use Lex\Notifications\Domain\Model\Ability\HasRouteNotificationForMail;
 class FrontendUser extends AbstractEntity
 {
     use Notifiable;
-    use HasRouteNotificationForMail; // Needed for email delivery, remove if not needed
+    use HasRouteNotificationForMail; // Useful for email delivery (it brings the required method routeNotificationForMail), remove if not needed
 
     // Required when using HasRouteNotificationForMail
     public function getEmail(): string { return 'john.doe@example.com'; }
@@ -88,7 +88,8 @@ final class OrderConfirmed extends Notification
     {
         return [
           NotificationChannel::CHANNEL_MAIL, // Because of this, toMail is required
-          NotificationChannel::CHANNEL_DATABASE // Because of this, toDatabase is required
+          NotificationChannel::CHANNEL_DATABASE, // Because of this, toDatabase is required
+          // Custom channel name OR class short name
         ];
     }
 
@@ -108,6 +109,8 @@ final class OrderConfirmed extends Notification
             'message' => 'Your order has been received.',
         ];
     }
+    
+    // Here you implement the method required by your custom channel
 }
 ```
 
@@ -175,6 +178,7 @@ $adminB->notifyN(new SchedulerJobFailed($error));
 $contact = new class($data) {
     use Notifiable;
     public function __construct(protected array $data) {}
+    // For each custom channel this notifiable should support, implement a route to tell the system the recipient/target/enpoint. Ex: routeNotificationForSlack
 };
 $contact->notifyNow(new OrderReceiptEmail($order));
 ```
@@ -270,7 +274,7 @@ final class SlackChannel implements ChannelInterface
     public function __construct(private readonly SlackClient $slack) {}
 
     // Optional: provide a short string key used in via().
-    // If omitted, the fully qualified class name is used as the key.
+    // If omitted, the short class name (SlackChannel) is used as the key.
     public function getName(): string
     {
         return 'slack';
@@ -278,6 +282,7 @@ final class SlackChannel implements ChannelInterface
 
     public function send(object $notifiable, Notification $notification): void
     {
+        // Implement your logic to send the notification
         $this->slack->post(
             // Works for models (routeNotificationForSlack()) and on-demand recipients
             $notifiable->routeNotificationFor('slack', $notification),
@@ -295,6 +300,17 @@ public function via(object $notifiable): array
     return ['slack', NotificationChannel::CHANNEL_DATABASE];
 }
 ```
+
+Then implement the route method in each notifiable that could be notified through this channel:
+
+```php
+// Here you implement the method required by your custom channel
+public function routeNotificationForSlack(object $notifiable, Notification $notification): string
+{
+    return 'https://hooks.slack.com/services/your/slack/webhook';
+}
+```
+If that route is missed, the system will skip the channel when sending the notifications to the notifiable.
 
 The `NotificationManager` resolves the channel by its key at send time. To ensure a custom channel is properly detected and registered into the manager's iterator, you must assign the `notifications.channel` tag to your class.
 

@@ -6,6 +6,7 @@ use Lex\Notifications\Channel\ChannelInterface;
 use Lex\Notifications\Notification;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use TYPO3\CMS\Core\SingletonInterface;
 
 /**
  * Registration "Option B" from the documentation: #[AutoconfigureTag].

@@ -21,6 +21,19 @@ Unreleased
    works for both models and anonymous notifiables.
 *  **[FEATURE]** Unit and functional test suites for TYPO3 13.4 and 14
    (SQLite by default, DDEV supported). See :ref:`testing`.
+*  **[BREAKING]** A channel is skipped for a notifiable whose route for that
+   channel is empty: the sender calls ``routeNotificationFor($channel, $notification)``
+   before each delivery. Notifiables must implement
+   ``routeNotificationFor<Channel>()`` for every custom channel they can be
+   notified through. ``routeNotificationFor('database')`` now returns ``true``
+   (instead of ``null``) so the database channel is never skipped.
+   See :ref:`routing`.
+*  **[BREAKING]** Channels without a ``getName()`` method are now keyed by their
+   short class name (e.g. ``SlackChannel``) instead of their fully-qualified
+   class name. Update the keys returned by ``via()`` accordingly.
+*  **[CHANGE]** The route method name is now built from the channel key in
+   UpperCamelCase, with ``-``, ``_`` and spaces as separators: ``my-channel``
+   maps to ``routeNotificationForMyChannel()``.
 *  **[BREAKING]** ``NotificationDispatcherInterface`` now declares
    ``channel()``, ``route()`` and ``routes()``. Custom implementations of the
    interface must add these methods.
