@@ -6,9 +6,9 @@
 Changelog
 =========
 
-.. _changelog-unreleased:
+.. _changelog-1-5-0:
 
-Unreleased
+1.5.0
 ==========
 
 *  **[FEATURE]** On-demand notifications:
